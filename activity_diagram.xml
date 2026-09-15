@@ -1,0 +1,182 @@
+<mxGraphModel dx="1422" dy="800" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="950" pageHeight="1250" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+
+    <!-- ================= SHARED LOGIN SEQUENCE ================= -->
+    <mxCell id="start" value="" style="ellipse;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+      <mxGeometry x="440" y="30" width="30" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="n1" value="Enter Login Credentials" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;" vertex="1" parent="1">
+      <mxGeometry x="385" y="100" width="180" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="n2" value="Validate Credentials" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;" vertex="1" parent="1">
+      <mxGeometry x="385" y="180" width="180" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="d1" value="" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;" vertex="1" parent="1">
+      <mxGeometry x="440" y="260" width="70" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="err" value="Show Error Message" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;" vertex="1" parent="1">
+      <mxGeometry x="140" y="270" width="180" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="n3" value="Identify User Role" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;" vertex="1" parent="1">
+      <mxGeometry x="385" y="350" width="180" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="d2" value="" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;" vertex="1" parent="1">
+      <mxGeometry x="440" y="430" width="70" height="60" as="geometry" />
+    </mxCell>
+
+    <mxCell id="divider" value="" style="endArrow=none;dashed=1;html=1;strokeColor=#000000;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="20" y="515" as="sourcePoint" />
+        <mxPoint x="880" y="515" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+
+    <!-- ================= LANES ================= -->
+    <mxCell id="laneSTU" value="Student" style="swimlane;html=1;startSize=30;whiteSpace=wrap;fillColor=none;strokeColor=#000000;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="20" y="530" width="280" height="430" as="geometry" />
+    </mxCell>
+    <mxCell id="sDash" value="Open Student Dashboard" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;" vertex="1" parent="laneSTU">
+      <mxGeometry x="40" y="40" width="200" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="sFork" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="laneSTU">
+      <mxGeometry x="40" y="110" width="200" height="12" as="geometry" />
+    </mxCell>
+    <mxCell id="sA1" value="View Materials" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=11;" vertex="1" parent="laneSTU">
+      <mxGeometry x="15" y="145" width="115" height="55" as="geometry" />
+    </mxCell>
+    <mxCell id="sA2" value="View Attendance" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=11;" vertex="1" parent="laneSTU">
+      <mxGeometry x="150" y="145" width="115" height="55" as="geometry" />
+    </mxCell>
+    <mxCell id="sA3" value="View Performance" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=11;" vertex="1" parent="laneSTU">
+      <mxGeometry x="15" y="220" width="115" height="55" as="geometry" />
+    </mxCell>
+    <mxCell id="sA4" value="Submit Assignments" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=11;" vertex="1" parent="laneSTU">
+      <mxGeometry x="150" y="220" width="115" height="55" as="geometry" />
+    </mxCell>
+    <mxCell id="sJoin" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="laneSTU">
+      <mxGeometry x="40" y="300" width="200" height="12" as="geometry" />
+    </mxCell>
+
+    <mxCell id="lanePAR" value="Parent" style="swimlane;html=1;startSize=30;whiteSpace=wrap;fillColor=none;strokeColor=#000000;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="320" y="530" width="280" height="430" as="geometry" />
+    </mxCell>
+    <mxCell id="pDash" value="Open Parent Dashboard" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;" vertex="1" parent="lanePAR">
+      <mxGeometry x="40" y="40" width="200" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="pFork" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="lanePAR">
+      <mxGeometry x="40" y="110" width="200" height="12" as="geometry" />
+    </mxCell>
+    <mxCell id="pA1" value="View Notifications" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=11;" vertex="1" parent="lanePAR">
+      <mxGeometry x="15" y="145" width="115" height="55" as="geometry" />
+    </mxCell>
+    <mxCell id="pA2" value="View Child Performance" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=11;" vertex="1" parent="lanePAR">
+      <mxGeometry x="150" y="145" width="115" height="55" as="geometry" />
+    </mxCell>
+    <mxCell id="pA3" value="View Child Attendance" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=11;" vertex="1" parent="lanePAR">
+      <mxGeometry x="15" y="220" width="115" height="55" as="geometry" />
+    </mxCell>
+    <mxCell id="pA4" value="View Fees / Report Card" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=11;" vertex="1" parent="lanePAR">
+      <mxGeometry x="150" y="220" width="115" height="55" as="geometry" />
+    </mxCell>
+    <mxCell id="pJoin" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="lanePAR">
+      <mxGeometry x="40" y="300" width="200" height="12" as="geometry" />
+    </mxCell>
+
+    <mxCell id="laneADM" value="Administration" style="swimlane;html=1;startSize=30;whiteSpace=wrap;fillColor=none;strokeColor=#000000;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="620" y="530" width="280" height="430" as="geometry" />
+    </mxCell>
+    <mxCell id="aDash" value="Open Admin Dashboard" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;" vertex="1" parent="laneADM">
+      <mxGeometry x="40" y="40" width="200" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="aFork" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="laneADM">
+      <mxGeometry x="40" y="110" width="200" height="12" as="geometry" />
+    </mxCell>
+    <mxCell id="aA1" value="Manage Students &amp; Parents" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=11;" vertex="1" parent="laneADM">
+      <mxGeometry x="15" y="145" width="115" height="55" as="geometry" />
+    </mxCell>
+    <mxCell id="aA2" value="Manage Study Material &amp; Attendance" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=11;" vertex="1" parent="laneADM">
+      <mxGeometry x="150" y="145" width="115" height="55" as="geometry" />
+    </mxCell>
+    <mxCell id="aA3" value="Manage Fees" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=11;" vertex="1" parent="laneADM">
+      <mxGeometry x="15" y="220" width="115" height="55" as="geometry" />
+    </mxCell>
+    <mxCell id="aA4" value="Post Notifications" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontSize=11;" vertex="1" parent="laneADM">
+      <mxGeometry x="150" y="220" width="115" height="55" as="geometry" />
+    </mxCell>
+    <mxCell id="aJoin" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="laneADM">
+      <mxGeometry x="40" y="300" width="200" height="12" as="geometry" />
+    </mxCell>
+
+    <!-- ================= BOTTOM CONVERGENCE ================= -->
+    <mxCell id="joinBottom" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+      <mxGeometry x="60" y="1000" width="800" height="12" as="geometry" />
+    </mxCell>
+    <mxCell id="d3" value="" style="rhombus;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;" vertex="1" parent="1">
+      <mxGeometry x="445" y="1070" width="70" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="logoutAct" value="Logout from System" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;" vertex="1" parent="1">
+      <mxGeometry x="650" y="1080" width="190" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="end" value="" style="shape=endState;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+      <mxGeometry x="725" y="1150" width="30" height="30" as="geometry" />
+    </mxCell>
+
+    <!-- ================= TRANSITIONS ================= -->
+    <mxCell id="t1" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="start" target="n1"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t2" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="n1" target="n2"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t3" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="n2" target="d1"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t4" value="[invalid credentials]" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=12;fontColor=#000000;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="d1" target="err"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t5" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="err" target="n1"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t6" value="[valid credentials]" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=12;fontColor=#000000;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="d1" target="n3"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t7" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="n3" target="d2"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+    <mxCell id="t8" value="[role = student]" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=12;fontColor=#000000;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="d2" target="sDash"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t9" value="[role = parent]" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=12;fontColor=#000000;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="d2" target="pDash"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t10" value="[role = administration]" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=12;fontColor=#000000;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="d2" target="aDash"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+    <!-- Student lane fork/join -->
+    <mxCell id="t11" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="sDash" target="sFork"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t12" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="sFork" target="sA1"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t13" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="sFork" target="sA2"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t14" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="sFork" target="sA3"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t15" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="sFork" target="sA4"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t16" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="sA1" target="sJoin"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t17" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="sA2" target="sJoin"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t18" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="sA3" target="sJoin"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t19" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="sA4" target="sJoin"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t20" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="sJoin" target="joinBottom"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+    <!-- Parent lane fork/join -->
+    <mxCell id="t21" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="pDash" target="pFork"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t22" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="pFork" target="pA1"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t23" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="pFork" target="pA2"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t24" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="pFork" target="pA3"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t25" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="pFork" target="pA4"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t26" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="pA1" target="pJoin"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t27" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="pA2" target="pJoin"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t28" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="pA3" target="pJoin"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t29" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="pA4" target="pJoin"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t30" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="pJoin" target="joinBottom"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+    <!-- Administration lane fork/join -->
+    <mxCell id="t31" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="aDash" target="aFork"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t32" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="aFork" target="aA1"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t33" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="aFork" target="aA2"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t34" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="aFork" target="aA3"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t35" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="aFork" target="aA4"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t36" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="aA1" target="aJoin"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t37" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="aA2" target="aJoin"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t38" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="aA3" target="aJoin"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t39" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="aA4" target="aJoin"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t40" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="aJoin" target="joinBottom"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+    <!-- Logout decision -->
+    <mxCell id="t41" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="joinBottom" target="d3"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t42" value="[yes]" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=12;fontColor=#000000;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="d3" target="logoutAct"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t43" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;" edge="1" parent="1" source="logoutAct" target="end"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="t44" value="[no]" style="endArrow=block;html=1;rounded=0;strokeColor=#000000;fontSize=12;fontColor=#000000;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="d3" target="n3"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+  </root>
+</mxGraphModel>
