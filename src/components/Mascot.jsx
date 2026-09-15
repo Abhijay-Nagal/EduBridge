@@ -21,6 +21,9 @@ export default function Mascot({
   size = 160,
   mood = 'idle',
   lookAt = false,
+  interactive = false,
+  greet = false,
+  onPoke,
   className = '',
   style,
 }) {
@@ -32,10 +35,35 @@ export default function Mascot({
   // Randomise the blink phase so two mascots on one screen never blink together.
   const blinkDelay = useRef(`${-(Math.random() * 5).toFixed(2)}s`)
 
-  const sleeping = mood === 'sleep'
-  const thinking = mood === 'think'
-  const cheering = mood === 'cheer'
-  const waving = mood === 'wave'
+  // Big gestures are one-shot bursts layered over the resting pose, so the
+  // character is calm unless something actually happened.
+  // `greet` may be true (wave) or a specific gesture name.
+  const [burst, setBurst] = useState(greet ? (typeof greet === 'string' ? greet : 'wave') : null)
+  const burstTimer = useRef()
+
+  useEffect(() => {
+    if (!greet) return
+    setBurst(typeof greet === 'string' ? greet : 'wave')
+    const t = setTimeout(() => setBurst(null), 2600)
+    return () => clearTimeout(t)
+  }, [greet])
+
+  useEffect(() => () => clearTimeout(burstTimer.current), [])
+
+  const poke = () => {
+    if (!interactive) return
+    clearTimeout(burstTimer.current)
+    const next = Math.random() > 0.55 ? 'cheer' : 'wave'
+    setBurst(next)
+    burstTimer.current = setTimeout(() => setBurst(null), 2400)
+    onPoke?.(next)
+  }
+
+  const active = burst ?? mood
+  const sleeping = active === 'sleep'
+  const thinking = active === 'think'
+  const cheering = active === 'cheer'
+  const waving = active === 'wave'
 
   useEffect(() => {
     if (!lookAt || sleeping) return
@@ -71,9 +99,23 @@ export default function Mascot({
   return (
     <div
       ref={wrapRef}
-      className={`mascot select-none ${className}`}
+      className={`mascot select-none ${interactive ? 'mascot-poke' : ''} ${className}`}
       style={style}
-      aria-hidden="true"
+      onPointerDown={interactive ? poke : undefined}
+      role={interactive ? 'button' : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      aria-label={interactive ? 'Poke the mascot' : undefined}
+      aria-hidden={interactive ? undefined : 'true'}
+      onKeyDown={
+        interactive
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                poke()
+              }
+            }
+          : undefined
+      }
     >
       <svg width={size} height={size * (220 / 200)} viewBox="0 0 200 220">
         <defs>
@@ -371,11 +413,99 @@ export default function Mascot({
   )
 }
 
-// Mascot paired with a speech bubble. Used for greetings, empty states and
-// contextual nudges so the character has a reason to be on the page.
+// Mascot that talks: cycles through `lines`, briefly showing a typing
+// indicator before each one, and jumps to a random line when poked.
+export function MascotBuddy({
+  lines = [],
+  size = 96,
+  mood = 'idle',
+  tone = 'light',
+  interval = 5400,
+  greet = false,
+  className = '',
+}) {
+  const [index, setIndex] = useState(0)
+  const [visible, setVisible] = useState(true)
+  const [typing, setTyping] = useState(true)
+  const dark = tone === 'dark'
+
+  // Short typing beat at the start of every line.
+  useEffect(() => {
+    setTyping(true)
+    const t = setTimeout(() => setTyping(false), 520)
+    return () => clearTimeout(t)
+  }, [index])
+
+  // Hide, advance, show again. Re-runs on each index change to form the loop.
+  useEffect(() => {
+    if (lines.length <= 1) return
+    const hide = setTimeout(() => setVisible(false), interval - 600)
+    const next = setTimeout(() => {
+      setIndex((v) => (v + 1) % lines.length)
+      setVisible(true)
+    }, interval)
+    return () => {
+      clearTimeout(hide)
+      clearTimeout(next)
+    }
+  }, [index, lines.length, interval])
+
+  const jump = () => {
+    if (lines.length <= 1) return
+    setIndex((v) => (v + 1) % lines.length)
+    setVisible(true)
+  }
+
+  if (lines.length === 0) return null
+
+  return (
+    <div className={`flex items-end gap-2 ${className}`}>
+      <Mascot
+        size={size}
+        mood={mood}
+        lookAt
+        interactive
+        greet={greet}
+        onPoke={jump}
+        className="shrink-0"
+      />
+      <div
+        key={index}
+        className={`bubble-bob relative mb-3 min-w-0 flex-1 ${
+          visible ? 'bubble-in' : 'bubble-out'
+        }`}
+      >
+        <div
+          className={`relative rounded-2xl px-3.5 py-2.5 text-sm font-medium leading-snug shadow-sm ${
+            dark ? 'bg-white/15 text-white backdrop-blur' : 'bg-white text-slate-700 ring-1 ring-slate-900/5'
+          }`}
+        >
+          <span
+            className={`absolute -left-1.5 bottom-3 h-3 w-3 rotate-45 ${
+              dark ? 'bg-white/15' : 'bg-white ring-1 ring-slate-900/5'
+            }`}
+          />
+          <span className="relative block">
+            {typing ? (
+              <span className="dot-typing inline-flex items-center gap-1 py-1">
+                <span className={`h-1.5 w-1.5 rounded-full ${dark ? 'bg-white' : 'bg-slate-400'}`} />
+                <span className={`h-1.5 w-1.5 rounded-full ${dark ? 'bg-white' : 'bg-slate-400'}`} />
+                <span className={`h-1.5 w-1.5 rounded-full ${dark ? 'bg-white' : 'bg-slate-400'}`} />
+              </span>
+            ) : (
+              lines[index]
+            )}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Static single-line variant, for one-off contextual nudges.
 export function MascotSays({
   children,
-  mood = 'wave',
+  mood = 'idle',
   size = 92,
   lookAt = true,
   tone = 'light',
@@ -384,9 +514,9 @@ export function MascotSays({
   const dark = tone === 'dark'
   return (
     <div className={`flex items-end gap-2 ${className}`}>
-      <Mascot size={size} mood={mood} lookAt={lookAt} className="shrink-0" />
+      <Mascot size={size} mood={mood} lookAt={lookAt} interactive className="shrink-0" />
       <div
-        className={`animate-pop relative mb-3 flex-1 rounded-2xl px-3.5 py-2.5 text-sm font-medium leading-snug shadow-sm ${
+        className={`animate-pop bubble-bob relative mb-3 flex-1 rounded-2xl px-3.5 py-2.5 text-sm font-medium leading-snug shadow-sm ${
           dark ? 'bg-white/15 text-white backdrop-blur' : 'bg-white text-slate-700 ring-1 ring-slate-900/5'
         }`}
       >

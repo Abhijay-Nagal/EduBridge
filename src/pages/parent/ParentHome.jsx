@@ -18,7 +18,7 @@ import {
   formatRelative,
   formatRupees,
 } from '../../components/ui'
-import Mascot from '../../components/Mascot'
+import Mascot, { MascotBuddy } from '../../components/Mascot'
 
 export default function ParentHome() {
   const { user } = useAuth()
@@ -55,14 +55,26 @@ export default function ParentHome() {
               {child.batchName} · Roll {child.rollNo}
             </p>
           </div>
-          <Mascot
-            size={100}
-            mood={attendance.percent >= 75 ? 'cheer' : 'think'}
-            lookAt
-            className="-mb-4 -mr-1 shrink-0"
-          />
+          <Mascot size={100} lookAt interactive greet className="-mb-4 -mr-1 shrink-0" />
         </div>
       </section>
+
+      <MascotBuddy
+        size={78}
+        className="animate-page-in"
+        lines={[
+          `${child.name.split(' ')[0]} is at ${attendance.percent}% attendance${
+            attendance.percent >= 75 ? '. Comfortably above the requirement.' : ', below the 75% requirement.'
+          }`,
+          outstanding.length > 0
+            ? `${formatRupees(outstanding.reduce((s, f) => s + f.amount, 0))} in fees is still pending.`
+            : 'All fees are clear. Nothing pending.',
+          termPercent !== null
+            ? `Latest test came in at ${termPercent}%.`
+            : 'No test marks recorded yet.',
+          'Tap Progress for the full report card.',
+        ]}
+      />
 
       <ChildPicker children={children} selectedId={selectedId} onSelect={setSelectedId} />
 

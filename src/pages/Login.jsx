@@ -24,8 +24,8 @@ export default function Login() {
   const [busy, setBusy] = useState(false)
   const [focused, setFocused] = useState(null)
 
-  // The mascot reflects what is happening on the form.
-  const mood = busy ? 'cheer' : error ? 'think' : focused === 'password' ? 'sleep' : 'wave'
+  // The mascot reflects what is happening on the form, and rests otherwise.
+  const mood = busy ? 'cheer' : error ? 'think' : focused === 'password' ? 'sleep' : 'idle'
   const line = busy
     ? 'Here we go!'
     : error
@@ -77,8 +77,8 @@ export default function Login() {
 
         {/* mascot greeter */}
         <div className="animate-slide-up mb-1 flex items-end justify-center gap-1" style={{ animationDelay: '0.1s' }}>
-          <Mascot size={104} mood={mood} lookAt />
-          <div className="animate-pop mb-6 max-w-[190px] rounded-2xl bg-white/15 px-3 py-2 text-sm font-medium text-white backdrop-blur">
+          <Mascot size={104} mood={mood} lookAt interactive greet />
+          <div className="bubble-bob animate-pop mb-6 max-w-[190px] rounded-2xl bg-white/15 px-3 py-2 text-sm font-medium text-white backdrop-blur">
             {line}
           </div>
         </div>

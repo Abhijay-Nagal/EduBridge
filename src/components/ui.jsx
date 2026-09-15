@@ -19,7 +19,7 @@ export function EmptyState({ icon: Icon, title, hint, mascot = true, mood = 'thi
   return (
     <div className="card animate-pop flex flex-col items-center gap-1 py-8 text-center">
       {mascot ? (
-        <Mascot size={118} mood={mood} lookAt />
+        <Mascot size={118} mood={mood} lookAt interactive />
       ) : (
         Icon && (
           <div className="mb-1 grid h-12 w-12 place-items-center rounded-2xl bg-slate-100 text-slate-400">
@@ -148,7 +148,7 @@ export function Toast({ message, onDone }) {
   return (
     <div className="safe-bottom pointer-events-none fixed inset-x-0 bottom-36 z-50 flex justify-center px-4">
       <div className="animate-pop flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white shadow-lg">
-        <Mascot size={30} mood="cheer" />
+        <Mascot size={32} />
         {message}
       </div>
     </div>

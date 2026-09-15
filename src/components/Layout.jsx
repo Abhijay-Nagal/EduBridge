@@ -4,6 +4,7 @@ import { getInstitute, unreadCount } from '../data/db'
 import { LogoutIcon } from './Icons'
 import { LogoMark } from './Logo'
 import InstallPrompt from './InstallPrompt'
+import AnimatedBackground from './AnimatedBackground'
 
 const roleLabel = {
   student: 'Student',
@@ -26,8 +27,10 @@ export default function Layout({ nav }) {
     .toUpperCase()
 
   return (
-    <div className="flex min-h-full flex-col bg-gradient-to-b from-slate-100 via-slate-100 to-slate-200">
-      <header className="safe-top sticky top-0 z-30 border-b border-slate-900/5 bg-white/80 backdrop-blur-xl">
+    <div className="relative flex min-h-full flex-col bg-gradient-to-b from-slate-50 via-slate-100 to-slate-200">
+      <AnimatedBackground />
+
+      <header className="safe-top sticky top-0 z-30 bg-white/70 backdrop-blur-xl">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3">
           <LogoMark size={34} className="shrink-0 drop-shadow-sm" />
           <div className="min-w-0 flex-1">
@@ -50,6 +53,7 @@ export default function Layout({ nav }) {
             <LogoutIcon />
           </button>
         </div>
+        <div className="accent-rule h-[2px] w-full" />
       </header>
 
       {/* Keying on the path replays the entrance animation on every navigation. */}

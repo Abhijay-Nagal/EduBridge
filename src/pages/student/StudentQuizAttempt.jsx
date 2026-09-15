@@ -137,7 +137,10 @@ function QuizResult({ quiz, attempt }) {
     return () => clearTimeout(t)
   }, [celebrate])
 
-  const mood = percent >= 75 ? 'cheer' : percent >= 40 ? 'wave' : 'think'
+  // A one-shot celebration, then the mascot settles. `think` is a resting pose
+  // so it is fine to hold for a weak score.
+  const restingMood = percent >= 40 ? 'idle' : 'think'
+  const greetGesture = percent >= 75 ? 'cheer' : percent >= 40 ? 'wave' : false
   const line =
     percent >= 75
       ? 'Excellent work. Keep it up!'
@@ -158,7 +161,13 @@ function QuizResult({ quiz, attempt }) {
         <p className="section-title">Your score</p>
 
         <div className="mt-3 flex items-center justify-center gap-2">
-          <Mascot size={118} mood={mood} className="shrink-0" />
+          <Mascot
+            size={118}
+            mood={restingMood}
+            greet={greetGesture}
+            interactive
+            className="shrink-0"
+          />
           <ProgressRing value={percent} size={112} stroke={11} tone={tone}>
             <div className="text-center">
               <p className="text-2xl font-extrabold leading-none text-slate-900">

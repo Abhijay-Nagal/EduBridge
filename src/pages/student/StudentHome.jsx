@@ -19,7 +19,7 @@ import {
   QuizIcon,
 } from '../../components/Icons'
 import { Badge, ProgressRing, StatCard, formatRelative } from '../../components/ui'
-import Mascot, { MascotSays } from '../../components/Mascot'
+import Mascot, { MascotBuddy } from '../../components/Mascot'
 
 export default function StudentHome() {
   const { user } = useAuth()
@@ -59,22 +59,30 @@ export default function StudentHome() {
           </div>
           <Mascot
             size={104}
-            mood={pendingQuizzes.length > 0 ? 'wave' : 'cheer'}
             lookAt
+            interactive
+            greet
             className="-mb-4 -mr-1 shrink-0"
           />
         </div>
       </section>
 
-      {pendingQuizzes.length > 0 && (
-        <MascotSays mood="think" size={74} className="animate-page-in">
-          You have{' '}
-          <strong>
-            {pendingQuizzes.length} quiz{pendingQuizzes.length > 1 ? 'zes' : ''}
-          </strong>{' '}
-          waiting. Want to knock one out?
-        </MascotSays>
-      )}
+      <MascotBuddy
+        size={78}
+        className="animate-page-in"
+        lines={[
+          pendingQuizzes.length > 0
+            ? `You have ${pendingQuizzes.length} quiz${pendingQuizzes.length > 1 ? 'zes' : ''} waiting. Want to knock one out?`
+            : 'All quizzes done. Nicely kept up!',
+          attendance.percent >= 75
+            ? `Attendance is at ${attendance.percent}%. Keep it there.`
+            : `Attendance is ${attendance.percent}%. Try not to miss the next few classes.`,
+          materials.length > 0
+            ? `${materials.length} items in Study Material, newest first.`
+            : 'No study material yet. It will show up here.',
+          'Tap me any time. I do not mind.',
+        ]}
+      />
 
       <div className="grid grid-cols-2 gap-3">
         <StatCard
