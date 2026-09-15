@@ -8,6 +8,7 @@ import {
 } from './Icons'
 import { Badge, ProgressRing, formatDate } from './ui'
 import { useCountUp } from '../hooks/useCountUp'
+import CardBackdrop from './CardBackdrop'
 
 const statusColor = {
   present: 'bg-emerald-400',
@@ -25,12 +26,8 @@ export function AttendanceCard({ summary, recent = [], days = 18 }) {
   const strip = recent.slice(0, days).reverse()
 
   return (
-    <section className="card group relative overflow-hidden">
-      <div
-        className={`pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full blur-2xl transition-opacity duration-500 ${
-          good ? 'bg-emerald-300/30' : 'bg-rose-300/30'
-        } opacity-60 group-hover:opacity-100`}
-      />
+    <section className="card group">
+      <CardBackdrop tone={good ? 'green' : 'red'} motes={5} grid seed={1} />
 
       <div className="relative flex items-start justify-between">
         <div>
@@ -150,10 +147,13 @@ export function ScoreCard({ marks = [], to }) {
   return (
     <Wrapper
       {...wrapperProps}
-      className="card group relative block overflow-hidden transition duration-300 hover:-translate-y-0.5 hover:shadow-md"
+      className="card group block transition duration-300 hover:-translate-y-0.5 hover:shadow-md"
     >
-      <div
-        className={`pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-60 blur-2xl transition-opacity duration-500 group-hover:opacity-100 ${glowTone}`}
+      <CardBackdrop
+        tone={tone === 'emerald' ? 'green' : tone === 'rose' ? 'red' : 'amber'}
+        glyphs="maths"
+        motes={4}
+        seed={2}
       />
 
       <div className="relative flex items-start justify-between gap-3">
@@ -230,9 +230,15 @@ export function QuizCard({ quiz, index = 0 }) {
   return (
     <Link
       to={`/student/quizzes/${quiz.id}`}
-      className="card card-accent group relative flex items-center gap-3 overflow-hidden pl-5 transition duration-300 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.99]"
+      className="card card-accent group flex items-center gap-3 overflow-hidden pl-5 transition duration-300 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.99]"
       style={{ animationDelay: `${index * 70}ms` }}
     >
+      <CardBackdrop
+        tone={overdue ? 'red' : 'amber'}
+        glyphs="maths"
+        motes={4}
+        seed={index + 3}
+      />
       <span
         className={`tile grid h-12 w-12 shrink-0 place-items-center rounded-xl ${
           overdue ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'

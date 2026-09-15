@@ -15,6 +15,7 @@ import { BellIcon, BookIcon } from '../../components/Icons'
 import { formatRelative } from '../../components/ui'
 import Mascot, { MascotBuddy } from '../../components/Mascot'
 import { AttendanceCard, ScoreCard, QuizCard } from '../../components/DashboardCards'
+import CardBackdrop from '../../components/CardBackdrop'
 
 export default function StudentHome() {
   const { user } = useAuth()
@@ -100,23 +101,26 @@ export default function StudentHome() {
         {materials.length === 0 ? (
           <p className="card text-sm text-slate-500">No study material uploaded yet.</p>
         ) : (
-          <div className="space-y-2">
-            {materials.slice(0, 3).map((m) => (
+          <div className="stagger space-y-2">
+            {materials.slice(0, 3).map((m, i) => (
               <Link
                 key={m.id}
                 to="/student/material"
-                className="card flex items-center gap-3 transition hover:shadow-md active:scale-[0.99]"
+                className="card group flex items-center gap-3 transition duration-300 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.99]"
               >
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600">
+                <CardBackdrop tone="brand" glyphs="book" motes={3} seed={i} />
+                <span className="tile relative grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600">
                   <BookIcon />
                 </span>
-                <span className="min-w-0 flex-1">
+                <span className="relative min-w-0 flex-1">
                   <span className="block truncate font-semibold text-slate-900">{m.title}</span>
                   <span className="block truncate text-xs text-slate-500">
                     {m.subject} · {m.topic}
                   </span>
                 </span>
-                <span className="shrink-0 text-xs text-slate-400">{formatRelative(m.uploadedAt)}</span>
+                <span className="relative shrink-0 text-xs text-slate-400">
+                  {formatRelative(m.uploadedAt)}
+                </span>
               </Link>
             ))}
           </div>

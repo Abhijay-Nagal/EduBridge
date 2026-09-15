@@ -30,8 +30,19 @@
 }
 
 @layer components {
+  /* Cards carry a faint graph-paper texture and a corner tint, so they never
+     read as plain white. `isolate` lets CardBackdrop sit at z-index -1: behind
+     the content, but still in front of this background. */
   .card {
-    @apply rounded-2xl bg-white/90 p-4 shadow-sm ring-1 ring-slate-900/5 backdrop-blur-sm;
+    @apply relative isolate rounded-2xl p-4 shadow-sm ring-1 ring-slate-900/5;
+    background-color: rgba(255, 255, 255, 0.92);
+    background-image:
+      radial-gradient(rgba(99, 102, 241, 0.14) 1px, transparent 1px),
+      radial-gradient(120% 90% at 100% 0%, rgba(99, 102, 241, 0.07), transparent 62%);
+    background-size:
+      17px 17px,
+      100% 100%;
+    backdrop-filter: blur(4px);
   }
 
   .btn {
@@ -703,6 +714,64 @@
   transform: translateY(-2px) rotate(-6deg) scale(1.08);
 }
 
+/* ==========================================================================
+   Card backdrops
+   Transform-only loops, so the browser can composite them on the GPU rather
+   than repainting the card on every frame.
+   ========================================================================== */
+
+/* Soft motes wandering inside a card. */
+.mote {
+  animation: mote-drift var(--dur, 18s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes mote-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: var(--o, 0.5);
+  }
+  33% {
+    transform: translate3d(var(--dx, 12px), var(--dy, -14px), 0) scale(1.3);
+    opacity: calc(var(--o, 0.5) * 1.7);
+  }
+  66% {
+    transform: translate3d(calc(var(--dx, 12px) * -0.75), calc(var(--dy, -14px) * 0.7), 0)
+      scale(0.82);
+    opacity: calc(var(--o, 0.5) * 0.55);
+  }
+}
+
+/* Subject glyphs rising slowly through the card, like chalk dust. */
+.glyph-rise {
+  animation: glyph-rise var(--dur, 24s) linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes glyph-rise {
+  0% {
+    transform: translate3d(0, 115%, 0) rotate(0deg);
+    opacity: 0;
+  }
+  14%,
+  84% {
+    opacity: var(--o, 0.16);
+  }
+  100% {
+    transform: translate3d(var(--dx, 8px), -45%, 0) rotate(var(--rot, 22deg));
+    opacity: 0;
+  }
+}
+
+/* Very slow pan over a tiled pattern. */
+.pattern-pan {
+  animation: pattern-pan 60s linear infinite;
+}
+@keyframes pattern-pan {
+  to {
+    background-position: 68px 68px;
+  }
+}
+
 /* Marks the mascot as pokeable. */
 .mascot-poke {
   cursor: pointer;
@@ -755,7 +824,10 @@
   .dot-typing > span,
   .shine::after,
   .pulse-soft,
-  .card-accent::before {
+  .card-accent::before,
+  .mote,
+  .glyph-rise,
+  .pattern-pan {
     animation: none !important;
   }
 

@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext'
 import { getStudentRecord, listMaterials } from '../../data/db'
 import { BookIcon, LinkIcon } from '../../components/Icons'
 import { Badge, EmptyState, PageHeader, SegmentedControl, formatDate } from '../../components/ui'
+import CardBackdrop from '../../components/CardBackdrop'
 
 export default function StudentMaterial() {
   const { user } = useAuth()
@@ -39,16 +40,30 @@ export default function StudentMaterial() {
           hint="Your teacher hasn't uploaded anything for this subject."
         />
       ) : (
-        <div className="space-y-3">
-          {visible.map((m) => {
+        <div className="stagger space-y-3">
+          {visible.map((m, i) => {
             const expanded = openId === m.id
             return (
-              <article key={m.id} className="card animate-fade-up">
+              <article
+                key={m.id}
+                className="card group transition duration-300 hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <CardBackdrop
+                  tone={m.kind === 'link' ? 'violet' : 'brand'}
+                  glyphs={m.subject === 'Maths' ? 'maths' : m.subject === 'Physics' ? 'science' : 'book'}
+                  motes={4}
+                  seed={i}
+                  grid={expanded}
+                />
                 <button
-                  className="flex w-full items-start gap-3 text-left"
+                  className="relative flex w-full items-start gap-3 text-left"
                   onClick={() => setOpenId(expanded ? null : m.id)}
                 >
-                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600">
+                  <span
+                    className={`tile grid h-11 w-11 shrink-0 place-items-center rounded-xl ${
+                      m.kind === 'link' ? 'bg-violet-50 text-violet-600' : 'bg-brand-50 text-brand-600'
+                    }`}
+                  >
                     {m.kind === 'link' ? <LinkIcon /> : <BookIcon />}
                   </span>
                   <span className="min-w-0 flex-1">
@@ -61,7 +76,7 @@ export default function StudentMaterial() {
                 </button>
 
                 {expanded && (
-                  <div className="mt-3 border-t border-slate-100 pt-3">
+                  <div className="animate-page-in relative mt-3 border-t border-slate-100 pt-3">
                     {m.kind === 'link' ? (
                       <a
                         href={m.url}

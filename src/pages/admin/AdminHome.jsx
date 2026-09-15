@@ -24,12 +24,41 @@ import {
 } from '../../components/Icons'
 import { Badge, StatCard, formatDate, formatRelative, formatRupees } from '../../components/ui'
 import Mascot, { MascotBuddy } from '../../components/Mascot'
+import CardBackdrop from '../../components/CardBackdrop'
 
 const quickActions = [
-  { to: '/admin/attendance', label: 'Mark attendance', icon: CalendarIcon, tone: 'bg-sky-50 text-sky-600' },
-  { to: '/admin/notifications', label: 'Post notice', icon: BellIcon, tone: 'bg-rose-50 text-rose-600' },
-  { to: '/admin/content', label: 'Upload material', icon: BookIcon, tone: 'bg-brand-50 text-brand-600' },
-  { to: '/admin/marks', label: 'Enter marks', icon: ChartIcon, tone: 'bg-emerald-50 text-emerald-600' },
+  {
+    to: '/admin/attendance',
+    label: 'Mark attendance',
+    icon: CalendarIcon,
+    tone: 'bg-sky-50 text-sky-600',
+    back: 'blue',
+    glyphs: 'people',
+  },
+  {
+    to: '/admin/notifications',
+    label: 'Post notice',
+    icon: BellIcon,
+    tone: 'bg-rose-50 text-rose-600',
+    back: 'red',
+    glyphs: 'book',
+  },
+  {
+    to: '/admin/content',
+    label: 'Upload material',
+    icon: BookIcon,
+    tone: 'bg-brand-50 text-brand-600',
+    back: 'brand',
+    glyphs: 'book',
+  },
+  {
+    to: '/admin/marks',
+    label: 'Enter marks',
+    icon: ChartIcon,
+    tone: 'bg-emerald-50 text-emerald-600',
+    back: 'green',
+    glyphs: 'maths',
+  },
 ]
 
 export default function AdminHome() {
@@ -86,16 +115,21 @@ export default function AdminHome() {
       <section className="animate-fade-up">
         <h2 className="section-title mb-2">Quick actions</h2>
         <div className="grid grid-cols-2 gap-3">
-          {quickActions.map(({ to, label, icon: Icon, tone }) => (
+          {quickActions.map(({ to, label, icon: Icon, tone, back, glyphs }, i) => (
             <Link
               key={to}
               to={to}
-              className="card flex items-center gap-3 transition hover:shadow-md active:scale-[0.98]"
+              className="card group flex items-center gap-3 transition duration-300 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98]"
             >
-              <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${tone}`}>
+              <CardBackdrop tone={back} glyphs={glyphs} motes={3} seed={i} />
+              <span
+                className={`tile relative grid h-10 w-10 shrink-0 place-items-center rounded-xl ${tone}`}
+              >
                 <Icon className="h-5 w-5" />
               </span>
-              <span className="min-w-0 text-sm font-semibold leading-tight text-slate-800">{label}</span>
+              <span className="relative min-w-0 text-sm font-semibold leading-tight text-slate-800">
+                {label}
+              </span>
             </Link>
           ))}
         </div>
@@ -108,6 +142,8 @@ export default function AdminHome() {
           sub="All time"
           tone="green"
           icon={RupeeIcon}
+          glyphs="money"
+          seed={0}
         />
         <StatCard
           label="Fees pending"
@@ -115,9 +151,27 @@ export default function AdminHome() {
           sub={`${fees.overdue} overdue`}
           tone={fees.overdue > 0 ? 'red' : 'amber'}
           icon={RupeeIcon}
+          glyphs="money"
+          seed={1}
         />
-        <StatCard label="Study material" value={materials.length} sub="Items uploaded" tone="brand" icon={BookIcon} />
-        <StatCard label="Quizzes" value={quizzes.length} sub="Published" tone="blue" icon={QuizIcon} />
+        <StatCard
+          label="Study material"
+          value={materials.length}
+          sub="Items uploaded"
+          tone="brand"
+          icon={BookIcon}
+          glyphs="book"
+          seed={2}
+        />
+        <StatCard
+          label="Quizzes"
+          value={quizzes.length}
+          sub="Published"
+          tone="blue"
+          icon={QuizIcon}
+          glyphs="maths"
+          seed={3}
+        />
       </div>
 
       {overdueFees.length > 0 && (
