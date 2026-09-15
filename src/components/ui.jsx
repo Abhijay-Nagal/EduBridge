@@ -97,7 +97,7 @@ export function Toast({ message, onDone }) {
 
   if (!message) return null
   return (
-    <div className="safe-bottom pointer-events-none fixed inset-x-0 bottom-20 z-50 flex justify-center px-4">
+    <div className="safe-bottom pointer-events-none fixed inset-x-0 bottom-36 z-50 flex justify-center px-4">
       <div className="animate-fade-up rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white shadow-lg">
         {message}
       </div>
