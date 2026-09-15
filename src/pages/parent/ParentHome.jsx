@@ -1,24 +1,17 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { attendanceSummary, feesFor, listNotifications, marksFor } from '../../data/db'
+import {
+  attendanceFor,
+  attendanceSummary,
+  feesFor,
+  listNotifications,
+  marksFor,
+} from '../../data/db'
 import ChildPicker, { useSelectedChild } from '../../components/ChildPicker'
-import {
-  BellIcon,
-  CalendarIcon,
-  ChartIcon,
-  ChevronRightIcon,
-  RupeeIcon,
-} from '../../components/Icons'
-import {
-  Badge,
-  EmptyState,
-  ProgressBar,
-  StatCard,
-  formatDate,
-  formatRelative,
-  formatRupees,
-} from '../../components/ui'
+import { BellIcon, ChartIcon, ChevronRightIcon, RupeeIcon } from '../../components/Icons'
+import { EmptyState, formatDate, formatRelative, formatRupees } from '../../components/ui'
 import Mascot, { MascotBuddy } from '../../components/Mascot'
+import { AttendanceCard, ScoreCard } from '../../components/DashboardCards'
 
 export default function ParentHome() {
   const { user } = useAuth()
@@ -29,6 +22,7 @@ export default function ParentHome() {
   }
 
   const attendance = attendanceSummary(child.id)
+  const recentAttendance = attendanceFor(child.id)
   const marks = marksFor(child.id)
   const fees = feesFor(child.id)
   const outstanding = fees.filter((f) => f.status !== 'paid')
@@ -119,64 +113,10 @@ export default function ParentHome() {
         </Link>
       )}
 
-      <div className="grid grid-cols-2 gap-3">
-        <StatCard
-          label="Attendance"
-          value={`${attendance.percent}%`}
-          sub={`${attendance.absent} absences`}
-          tone={attendance.percent >= 75 ? 'green' : 'red'}
-          icon={CalendarIcon}
-        />
-        <StatCard
-          label={latestTerm ?? 'Latest test'}
-          value={termPercent === null ? '—' : `${termPercent}%`}
-          sub={termMarks.length ? `${termMarks.length} subjects` : 'No marks yet'}
-          tone="brand"
-          icon={ChartIcon}
-        />
+      <div className="stagger space-y-3">
+        <AttendanceCard summary={attendance} recent={recentAttendance} />
+        <ScoreCard marks={marks} to="/parent/progress" />
       </div>
-
-      <section className="card animate-fade-up">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-bold text-slate-900">Attendance</h2>
-          <Link to="/parent/attendance" className="text-xs font-semibold text-brand-600">
-            Details
-          </Link>
-        </div>
-        <ProgressBar value={attendance.percent} tone={attendance.percent >= 75 ? 'green' : 'red'} />
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Badge tone="green">{attendance.present} present</Badge>
-          <Badge tone="amber">{attendance.late} late</Badge>
-          <Badge tone="red">{attendance.absent} absent</Badge>
-        </div>
-      </section>
-
-      {termMarks.length > 0 && (
-        <section className="card animate-fade-up">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-bold text-slate-900">{latestTerm}</h2>
-            <Link to="/parent/progress" className="text-xs font-semibold text-brand-600">
-              Full report
-            </Link>
-          </div>
-          <div className="space-y-3">
-            {termMarks.map((m) => {
-              const p = Math.round((m.marks / m.maxMarks) * 100)
-              return (
-                <div key={m.id}>
-                  <div className="mb-1 flex items-baseline justify-between gap-2">
-                    <span className="text-sm font-semibold text-slate-700">{m.subject}</span>
-                    <span className="shrink-0 text-xs font-semibold text-slate-500">
-                      {m.marks}/{m.maxMarks}
-                    </span>
-                  </div>
-                  <ProgressBar value={p} tone={p >= 75 ? 'green' : p >= 40 ? 'amber' : 'red'} />
-                </div>
-              )
-            })}
-          </div>
-        </section>
-      )}
 
       <section className="animate-fade-up">
         <div className="mb-2 flex items-center justify-between">

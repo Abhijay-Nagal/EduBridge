@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import {
+  attendanceFor,
   attendanceSummary,
   getAttempt,
   getBatch,
@@ -10,16 +11,10 @@ import {
   listQuizzes,
   marksFor,
 } from '../../data/db'
-import {
-  BellIcon,
-  BookIcon,
-  CalendarIcon,
-  ChartIcon,
-  ChevronRightIcon,
-  QuizIcon,
-} from '../../components/Icons'
-import { Badge, ProgressRing, StatCard, formatRelative } from '../../components/ui'
+import { BellIcon, BookIcon } from '../../components/Icons'
+import { formatRelative } from '../../components/ui'
 import Mascot, { MascotBuddy } from '../../components/Mascot'
+import { AttendanceCard, ScoreCard, QuizCard } from '../../components/DashboardCards'
 
 export default function StudentHome() {
   const { user } = useAuth()
@@ -27,19 +22,14 @@ export default function StudentHome() {
   const batch = getBatch(student.batchId)
 
   const attendance = attendanceSummary(student.id)
+  const recentAttendance = attendanceFor(student.id)
   const materials = listMaterials({ batchId: student.batchId })
   const quizzes = listQuizzes({ batchId: student.batchId })
   const pendingQuizzes = quizzes.filter((q) => !getAttempt(q.id, student.id))
   const notifications = listNotifications(user).slice(0, 3)
 
+  // ScoreCard derives the term grouping and percentages itself.
   const marks = marksFor(student.id)
-  const latestTerm = marks.length ? marks[marks.length - 1].term : null
-  const termMarks = marks.filter((m) => m.term === latestTerm)
-  const termPercent = termMarks.length
-    ? Math.round(
-        (termMarks.reduce((s, m) => s + m.marks, 0) / termMarks.reduce((s, m) => s + m.maxMarks, 0)) * 100,
-      )
-    : null
 
   const firstName = user.name.split(' ')[0]
   const hour = new Date().getHours()
@@ -84,44 +74,17 @@ export default function StudentHome() {
         ]}
       />
 
-      <div className="grid grid-cols-2 gap-3">
-        <StatCard
-          label="Attendance"
-          value={`${attendance.percent}%`}
-          sub={`${attendance.present + attendance.late} of ${attendance.total} classes`}
-          tone={attendance.percent >= 75 ? 'green' : 'red'}
-          icon={CalendarIcon}
-        />
-        <StatCard
-          label={latestTerm ?? 'Latest test'}
-          value={termPercent === null ? '—' : `${termPercent}%`}
-          sub={termMarks.length ? `${termMarks.length} subjects` : 'No marks yet'}
-          tone="brand"
-          icon={ChartIcon}
-        />
+      <div className="stagger space-y-3">
+        <AttendanceCard summary={attendance} recent={recentAttendance} />
+        <ScoreCard marks={marks} to="/student/progress" />
       </div>
 
       {pendingQuizzes.length > 0 && (
-        <section className="animate-fade-up">
+        <section>
           <h2 className="section-title mb-2">Pending quizzes</h2>
           <div className="space-y-2">
-            {pendingQuizzes.map((quiz) => (
-              <Link
-                key={quiz.id}
-                to={`/student/quizzes/${quiz.id}`}
-                className="card flex items-center gap-3 transition hover:shadow-md active:scale-[0.99]"
-              >
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-amber-50 text-amber-600">
-                  <QuizIcon />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-semibold text-slate-900">{quiz.title}</span>
-                  <span className="block text-xs text-slate-500">
-                    {quiz.subject} · {quiz.questions.length} questions
-                  </span>
-                </span>
-                <ChevronRightIcon className="h-5 w-5 shrink-0 text-slate-300" />
-              </Link>
+            {pendingQuizzes.map((quiz, i) => (
+              <QuizCard key={quiz.id} quiz={quiz} index={i} />
             ))}
           </div>
         </section>
@@ -187,38 +150,6 @@ export default function StudentHome() {
         )}
       </section>
 
-      <section className="card animate-fade-up">
-        <h2 className="mb-3 font-bold text-slate-900">Attendance breakdown</h2>
-        <div className="flex items-center gap-4">
-          <ProgressRing
-            value={attendance.percent}
-            tone={attendance.percent >= 75 ? 'green' : 'red'}
-          >
-            <div className="text-center">
-              <p className="text-xl font-extrabold leading-none text-slate-900">
-                {attendance.percent}
-                <span className="text-xs font-bold text-slate-400">%</span>
-              </p>
-            </div>
-          </ProgressRing>
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap gap-2">
-              <Badge tone="green">{attendance.present} present</Badge>
-              <Badge tone="amber">{attendance.late} late</Badge>
-              <Badge tone="red">{attendance.absent} absent</Badge>
-            </div>
-            {attendance.percent < 75 ? (
-              <p className="mt-3 rounded-xl bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">
-                Below the 75% requirement.
-              </p>
-            ) : (
-              <p className="mt-3 text-xs text-slate-500">
-                You are comfortably above the 75% requirement.
-              </p>
-            )}
-          </div>
-        </div>
-      </section>
     </div>
   )
 }

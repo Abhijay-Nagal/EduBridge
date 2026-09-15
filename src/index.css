@@ -615,6 +615,94 @@
   }
 }
 
+/* ==========================================================================
+   Dashboard cards
+   ========================================================================== */
+
+/* Bars that grow up from their baseline. */
+.bar-grow {
+  transform-origin: bottom;
+  animation: bar-grow 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes bar-grow {
+  from {
+    transform: scaleY(0.04);
+    opacity: 0.25;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+/* Small cells that pop into place, used by the attendance strip. */
+.cell-in {
+  animation: cell-in 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes cell-in {
+  from {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Widening fill, used by horizontal subject bars. */
+.fill-in {
+  animation: fill-in 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes fill-in {
+  from {
+    width: 0%;
+  }
+}
+
+/* Attention halo for an imminent deadline. */
+.pulse-soft {
+  animation: pulse-soft 2.1s ease-in-out infinite;
+}
+@keyframes pulse-soft {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.4);
+  }
+  55% {
+    box-shadow: 0 0 0 7px rgba(244, 63, 94, 0);
+  }
+}
+
+/* Chevrons and arrows that lean into a hover. */
+.nudge {
+  transition: transform 0.22s ease;
+}
+.group:hover .nudge {
+  transform: translateX(3px);
+}
+
+/* Live gradient edge on tappable cards. */
+.card-accent::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: linear-gradient(180deg, #6366f1, #a855f7, #38bdf8, #6366f1);
+  background-size: 100% 300%;
+  animation: gradient-shift 7s linear infinite;
+}
+
+/* Icon tile that lifts and tilts with its card. */
+.tile {
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s ease;
+}
+.group:hover .tile {
+  transform: translateY(-2px) rotate(-6deg) scale(1.08);
+}
+
 /* Marks the mascot as pokeable. */
 .mascot-poke {
   cursor: pointer;
@@ -665,8 +753,17 @@
   .accent-rule,
   .bubble-bob,
   .dot-typing > span,
-  .shine::after {
+  .shine::after,
+  .pulse-soft,
+  .card-accent::before {
     animation: none !important;
+  }
+
+  .bar-grow,
+  .cell-in,
+  .fill-in {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
   }
 
   .animate-page-in,
