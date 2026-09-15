@@ -23,6 +23,7 @@ import {
   UsersIcon,
 } from '../../components/Icons'
 import { Badge, StatCard, formatDate, formatRelative, formatRupees } from '../../components/ui'
+import Mascot, { MascotSays } from '../../components/Mascot'
 
 const quickActions = [
   { to: '/admin/attendance', label: 'Mark attendance', icon: CalendarIcon, tone: 'bg-sky-50 text-sky-600' },
@@ -54,13 +55,41 @@ export default function AdminHome() {
 
   return (
     <div className="space-y-5">
-      <section className="animate-fade-up rounded-3xl bg-gradient-to-br from-brand-600 to-brand-800 p-5 text-white shadow-lg">
-        <p className="text-sm text-white/70">{institute.name}</p>
-        <h1 className="text-2xl font-extrabold tracking-tight">Welcome, {firstName}</h1>
-        <p className="mt-1 text-sm text-white/75">
-          {students.length} students · {batches.length} batches
-        </p>
+      <section className="sheen animate-slide-up relative rounded-3xl bg-gradient-to-br from-brand-600 via-brand-600 to-brand-800 p-5 text-white shadow-lg shadow-brand-900/20">
+        <div className="relative flex items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm text-white/70">{institute.name}</p>
+            <h1 className="truncate text-2xl font-extrabold tracking-tight">Welcome, {firstName}</h1>
+            <p className="mt-1 truncate text-sm text-white/75">
+              {students.length} students · {batches.length} batches
+            </p>
+          </div>
+          <Mascot
+            size={100}
+            mood={overdueFees.length > 0 ? 'think' : 'wave'}
+            lookAt
+            className="-mb-4 -mr-1 shrink-0"
+          />
+        </div>
       </section>
+
+      {(overdueFees.length > 0 || lowAttendance.length > 0) && (
+        <MascotSays mood="think" size={74} className="animate-page-in">
+          {overdueFees.length > 0 && (
+            <>
+              <strong>{overdueFees.length}</strong> fee{overdueFees.length > 1 ? 's' : ''} overdue
+            </>
+          )}
+          {overdueFees.length > 0 && lowAttendance.length > 0 && ' and '}
+          {lowAttendance.length > 0 && (
+            <>
+              <strong>{lowAttendance.length}</strong> student
+              {lowAttendance.length > 1 ? 's' : ''} below 75% attendance
+            </>
+          )}
+          . Worth a look today.
+        </MascotSays>
+      )}
 
       <section className="animate-fade-up">
         <h2 className="section-title mb-2">Quick actions</h2>

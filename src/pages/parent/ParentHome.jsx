@@ -18,6 +18,7 @@ import {
   formatRelative,
   formatRupees,
 } from '../../components/ui'
+import Mascot from '../../components/Mascot'
 
 export default function ParentHome() {
   const { user } = useAuth()
@@ -45,12 +46,22 @@ export default function ParentHome() {
 
   return (
     <div className="space-y-5">
-      <section className="animate-fade-up rounded-3xl bg-gradient-to-br from-brand-600 to-brand-800 p-5 text-white shadow-lg">
-        <p className="text-sm text-white/70">Welcome, {firstName}</p>
-        <h1 className="text-2xl font-extrabold tracking-tight">{child.name}</h1>
-        <p className="mt-1 text-sm text-white/75">
-          {child.batchName} · Roll {child.rollNo}
-        </p>
+      <section className="sheen animate-slide-up relative rounded-3xl bg-gradient-to-br from-brand-600 via-brand-600 to-brand-800 p-5 text-white shadow-lg shadow-brand-900/20">
+        <div className="relative flex items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="text-sm text-white/70">Welcome, {firstName}</p>
+            <h1 className="truncate text-2xl font-extrabold tracking-tight">{child.name}</h1>
+            <p className="mt-1 truncate text-sm text-white/75">
+              {child.batchName} · Roll {child.rollNo}
+            </p>
+          </div>
+          <Mascot
+            size={100}
+            mood={attendance.percent >= 75 ? 'cheer' : 'think'}
+            lookAt
+            className="-mb-4 -mr-1 shrink-0"
+          />
+        </div>
       </section>
 
       <ChildPicker children={children} selectedId={selectedId} onSelect={setSelectedId} />

@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { getAttempt, getQuiz, getStudentRecord, submitAttempt } from '../../data/db'
 import { ArrowLeftIcon, CheckIcon, XIcon } from '../../components/Icons'
-import { Badge, ProgressBar } from '../../components/ui'
+import { Badge, ProgressBar, ProgressRing } from '../../components/ui'
+import Mascot from '../../components/Mascot'
+import Confetti from '../../components/Confetti'
 
 export default function StudentQuizAttempt() {
   const { quizId } = useParams()
@@ -127,30 +129,48 @@ function QuizResult({ quiz, attempt }) {
   const percent = Math.round((attempt.score / attempt.maxScore) * 100)
   const tone = percent >= 75 ? 'green' : percent >= 40 ? 'amber' : 'red'
 
+  // Only celebrate a genuinely good score, and only briefly.
+  const [celebrate, setCelebrate] = useState(percent >= 75)
+  useEffect(() => {
+    if (!celebrate) return
+    const t = setTimeout(() => setCelebrate(false), 2800)
+    return () => clearTimeout(t)
+  }, [celebrate])
+
+  const mood = percent >= 75 ? 'cheer' : percent >= 40 ? 'wave' : 'think'
+  const line =
+    percent >= 75
+      ? 'Excellent work. Keep it up!'
+      : percent >= 40
+        ? 'Decent attempt. Review the ones you missed.'
+        : 'Needs work. Go through the material again.'
+
   return (
     <div>
+      {celebrate && <Confetti />}
+
       <button onClick={() => navigate('/student/quizzes')} className="btn-ghost mb-4 px-3 py-2 text-xs">
         <ArrowLeftIcon className="h-4 w-4" />
         Back
       </button>
 
-      <div className="card mb-4 animate-scale-in text-center">
+      <div className="card animate-pop mb-4 text-center">
         <p className="section-title">Your score</p>
-        <p className="mt-2 text-5xl font-extrabold tracking-tight text-slate-900">
-          {attempt.score}
-          <span className="text-2xl font-bold text-slate-300">/{attempt.maxScore}</span>
-        </p>
-        <p className="mt-1 text-sm font-semibold text-slate-500">{percent}%</p>
-        <div className="mt-4">
-          <ProgressBar value={percent} tone={tone} />
+
+        <div className="mt-3 flex items-center justify-center gap-2">
+          <Mascot size={118} mood={mood} className="shrink-0" />
+          <ProgressRing value={percent} size={112} stroke={11} tone={tone}>
+            <div className="text-center">
+              <p className="text-2xl font-extrabold leading-none text-slate-900">
+                {attempt.score}
+                <span className="text-sm font-bold text-slate-300">/{attempt.maxScore}</span>
+              </p>
+              <p className="mt-0.5 text-xs font-bold text-slate-400">{percent}%</p>
+            </div>
+          </ProgressRing>
         </div>
-        <p className="mt-3 text-sm text-slate-600">
-          {percent >= 75
-            ? 'Excellent work. Keep it up!'
-            : percent >= 40
-              ? 'Decent attempt — review the ones you missed.'
-              : 'Needs work. Go through the material again.'}
-        </p>
+
+        <p className="mt-3 text-sm font-medium text-slate-600">{line}</p>
       </div>
 
       <h2 className="section-title mb-2">Answer review</h2>

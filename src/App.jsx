@@ -1,9 +1,11 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
 import { getParentRecord, getStudentRecord } from './data/db'
 import Layout from './components/Layout'
 import Login from './pages/Login'
+import IntroScreen from './components/IntroScreen'
+import Mascot from './components/Mascot'
 
 import {
   BellIcon,
@@ -63,10 +65,10 @@ const adminNav = [
 
 function Splash() {
   return (
-    <div className="grid min-h-full place-items-center bg-brand-700">
+    <div className="grid min-h-full place-items-center bg-gradient-to-b from-brand-700 to-brand-900">
       <div className="text-center text-white">
-        <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-white/25 border-t-white" />
-        <p className="text-sm font-semibold tracking-wide">EduBridge</p>
+        <Mascot size={130} mood="think" />
+        <p className="mt-2 text-sm font-semibold tracking-wide">Getting things ready…</p>
       </div>
     </div>
   )
@@ -98,6 +100,19 @@ function RequireRole({ role, children }) {
 
 export default function App() {
   const { ready, user } = useAuth()
+  const [introDone, setIntroDone] = useState(false)
+  const finishIntro = useCallback(() => setIntroDone(true), [])
+
+  // The intro plays over the top while the database boots underneath, so the
+  // opening animation is never competing with a loading spinner.
+  if (!introDone) {
+    return (
+      <>
+        <IntroScreen onDone={finishIntro} />
+        {!ready && <Splash />}
+      </>
+    )
+  }
 
   if (!ready) return <Splash />
 
