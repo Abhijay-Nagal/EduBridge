@@ -19,7 +19,7 @@ export function PageHeader({ title, subtitle, action }) {
 export function EmptyState({ icon: Icon, title, hint, mascot = true, mood = 'think' }) {
   return (
     <div className="card animate-pop flex flex-col items-center gap-1 py-8 text-center">
-      <CardBackdrop tone="brand" glyphs="book" motes={5} grid />
+      <CardBackdrop tone="brand" symbols="book" count={5} grid />
       {mascot ? (
         <Mascot size={118} mood={mood} lookAt interactive />
       ) : (
@@ -76,10 +76,10 @@ function AnimatedValue({ value }) {
   )
 }
 
-export function StatCard({ label, value, sub, tone = 'brand', icon: Icon, glyphs, seed = 0 }) {
+export function StatCard({ label, value, sub, tone = 'brand', icon: Icon, symbols, seed = 0 }) {
   return (
     <div className="card group transition duration-300 hover:-translate-y-0.5 hover:shadow-md">
-      <CardBackdrop tone={tone} glyphs={glyphs} seed={seed} motes={4} />
+      <CardBackdrop tone={tone} symbols={symbols} seed={seed} count={4} />
       <div className="relative flex items-start justify-between">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</p>
         {Icon && (

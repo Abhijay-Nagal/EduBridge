@@ -50,8 +50,8 @@ export default function StudentMaterial() {
               >
                 <CardBackdrop
                   tone={m.kind === 'link' ? 'violet' : 'brand'}
-                  glyphs={m.subject === 'Maths' ? 'maths' : m.subject === 'Physics' ? 'science' : 'book'}
-                  motes={4}
+                  symbols={m.subject === 'Maths' ? 'maths' : m.subject === 'Physics' ? 'science' : 'book'}
+                  count={4}
                   seed={i}
                   grid={expanded}
                 />

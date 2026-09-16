@@ -108,7 +108,7 @@ export default function StudentHome() {
                 to="/student/material"
                 className="card group flex items-center gap-3 transition duration-300 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.99]"
               >
-                <CardBackdrop tone="brand" glyphs="book" motes={3} seed={i} />
+                <CardBackdrop tone="brand" symbols="book" count={3} seed={i} />
                 <span className="tile relative grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600">
                   <BookIcon />
                 </span>

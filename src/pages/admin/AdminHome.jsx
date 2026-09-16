@@ -33,7 +33,7 @@ const quickActions = [
     icon: CalendarIcon,
     tone: 'bg-sky-50 text-sky-600',
     back: 'blue',
-    glyphs: 'people',
+    symbols: 'people',
   },
   {
     to: '/admin/notifications',
@@ -41,7 +41,7 @@ const quickActions = [
     icon: BellIcon,
     tone: 'bg-rose-50 text-rose-600',
     back: 'red',
-    glyphs: 'book',
+    symbols: 'book',
   },
   {
     to: '/admin/content',
@@ -49,7 +49,7 @@ const quickActions = [
     icon: BookIcon,
     tone: 'bg-brand-50 text-brand-600',
     back: 'brand',
-    glyphs: 'book',
+    symbols: 'book',
   },
   {
     to: '/admin/marks',
@@ -57,7 +57,7 @@ const quickActions = [
     icon: ChartIcon,
     tone: 'bg-emerald-50 text-emerald-600',
     back: 'green',
-    glyphs: 'maths',
+    symbols: 'maths',
   },
 ]
 
@@ -115,13 +115,13 @@ export default function AdminHome() {
       <section className="animate-fade-up">
         <h2 className="section-title mb-2">Quick actions</h2>
         <div className="grid grid-cols-2 gap-3">
-          {quickActions.map(({ to, label, icon: Icon, tone, back, glyphs }, i) => (
+          {quickActions.map(({ to, label, icon: Icon, tone, back, symbols }, i) => (
             <Link
               key={to}
               to={to}
               className="card group flex items-center gap-3 transition duration-300 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98]"
             >
-              <CardBackdrop tone={back} glyphs={glyphs} motes={3} seed={i} />
+              <CardBackdrop tone={back} symbols={symbols} count={3} seed={i} />
               <span
                 className={`tile relative grid h-10 w-10 shrink-0 place-items-center rounded-xl ${tone}`}
               >
@@ -142,7 +142,7 @@ export default function AdminHome() {
           sub="All time"
           tone="green"
           icon={RupeeIcon}
-          glyphs="money"
+          symbols="money"
           seed={0}
         />
         <StatCard
@@ -151,7 +151,7 @@ export default function AdminHome() {
           sub={`${fees.overdue} overdue`}
           tone={fees.overdue > 0 ? 'red' : 'amber'}
           icon={RupeeIcon}
-          glyphs="money"
+          symbols="money"
           seed={1}
         />
         <StatCard
@@ -160,7 +160,7 @@ export default function AdminHome() {
           sub="Items uploaded"
           tone="brand"
           icon={BookIcon}
-          glyphs="book"
+          symbols="book"
           seed={2}
         />
         <StatCard
@@ -169,7 +169,7 @@ export default function AdminHome() {
           sub="Published"
           tone="blue"
           icon={QuizIcon}
-          glyphs="maths"
+          symbols="maths"
           seed={3}
         />
       </div>

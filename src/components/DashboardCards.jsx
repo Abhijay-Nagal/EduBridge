@@ -27,7 +27,7 @@ export function AttendanceCard({ summary, recent = [], days = 18 }) {
 
   return (
     <section className="card group">
-      <CardBackdrop tone={good ? 'green' : 'red'} motes={5} grid seed={1} />
+      <CardBackdrop tone={good ? 'green' : 'red'} symbols="people" count={5} grid seed={1} />
 
       <div className="relative flex items-start justify-between">
         <div>
@@ -151,8 +151,8 @@ export function ScoreCard({ marks = [], to }) {
     >
       <CardBackdrop
         tone={tone === 'emerald' ? 'green' : tone === 'rose' ? 'red' : 'amber'}
-        glyphs="maths"
-        motes={4}
+        symbols="maths"
+        count={4}
         seed={2}
       />
 
@@ -235,8 +235,8 @@ export function QuizCard({ quiz, index = 0 }) {
     >
       <CardBackdrop
         tone={overdue ? 'red' : 'amber'}
-        glyphs="maths"
-        motes={4}
+        symbols="maths"
+        count={4}
         seed={index + 3}
       />
       <span
