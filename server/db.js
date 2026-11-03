@@ -25,7 +25,8 @@ const v = (x) => (x === undefined ? null : x)
 
 // A tiny driver-neutral interface: q(sql, ...params) → rows, exec(sql), tx(fn).
 async function connect() {
-  const url = process.env.DATABASE_URL || process.env.POSTGRES_URL
+  // Vercel's Neon integration names the variable after a chosen prefix.
+  const url = process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.STORAGE_URL
   if (url) {
     const { default: pg } = await import('pg')
     const pool = new pg.Pool({ connectionString: url, max: 5 })
