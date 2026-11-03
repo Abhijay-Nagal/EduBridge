@@ -34,11 +34,11 @@ export default function Login() {
         ? 'Eyes closed, promise.'
         : `Welcome to ${institute.name}!`
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault()
     setError('')
     setBusy(true)
-    const result = login(loginId, password)
+    const result = await login(loginId, password)
     if (!result.ok) {
       setBusy(false)
       setError(result.error)

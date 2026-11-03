@@ -1,7 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { authenticate, initDb, refreshOverdueFees, subscribe } from '../data/db'
-
-const SESSION_KEY = 'edubridge-session'
+import { initDb, login as apiLogin, logout as apiLogout, subscribe } from '../data/db'
 
 const AuthContext = createContext(null)
 
@@ -15,16 +13,10 @@ export function AuthProvider({ children }) {
     let cancelled = false
 
     async function boot() {
-      await initDb()
-      await refreshOverdueFees()
+      // Restores the session from the saved token, if it is still valid.
+      const saved = await initDb()
       if (cancelled) return
-
-      try {
-        const saved = sessionStorageSafe.get(SESSION_KEY)
-        if (saved) setUser(JSON.parse(saved))
-      } catch {
-        // Corrupt or blocked storage — start logged out.
-      }
+      if (saved) setUser(saved)
       setReady(true)
     }
 
@@ -41,16 +33,18 @@ export function AuthProvider({ children }) {
       ready,
       user,
       revision,
-      login(loginId, password) {
-        const found = authenticate(loginId, password)
-        if (!found) return { ok: false, error: 'Incorrect phone number or password.' }
-        setUser(found)
-        sessionStorageSafe.set(SESSION_KEY, JSON.stringify(found))
-        return { ok: true, user: found }
+      async login(loginId, password) {
+        try {
+          const found = await apiLogin(loginId, password)
+          setUser(found)
+          return { ok: true, user: found }
+        } catch (err) {
+          return { ok: false, error: err.message }
+        }
       },
       logout() {
         setUser(null)
-        sessionStorageSafe.remove(SESSION_KEY)
+        apiLogout()
       },
       refresh() {
         setRevision((r) => r + 1)
@@ -68,27 +62,3 @@ export function useAuth() {
   return ctx
 }
 
-// localStorage can throw in private windows or when site data is blocked.
-const sessionStorageSafe = {
-  get(key) {
-    try {
-      return localStorage.getItem(key)
-    } catch {
-      return null
-    }
-  },
-  set(key, value) {
-    try {
-      localStorage.setItem(key, value)
-    } catch {
-      /* ignore */
-    }
-  },
-  remove(key) {
-    try {
-      localStorage.removeItem(key)
-    } catch {
-      /* ignore */
-    }
-  },
-}

@@ -19,3 +19,6 @@ public/workbox-*.js
 *.local
 *.log
 npm-debug.log*
+
+# Local SQLite database (recreated with demo data on first start)
+server/data/

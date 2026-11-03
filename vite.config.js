@@ -3,6 +3,10 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  server: {
+    // The Express API runs separately in development (npm run dev starts both).
+    proxy: { '/api': 'http://localhost:4000' },
+  },
   build: {
     rollupOptions: {
       output: {
@@ -46,6 +50,8 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         navigateFallback: '/index.html',
+        // API calls must always reach the server, never the offline cache.
+        navigateFallbackDenylist: [/^\/api/],
         cleanupOutdatedCaches: true,
       },
       devOptions: {

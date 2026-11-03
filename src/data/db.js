@@ -1,37 +1,86 @@
 // Single data-access layer for EduBridge.
 //
-// Everything the UI needs goes through this module. Persistence is IndexedDB
-// (via idb-keyval) with an in-memory cache, so reads are synchronous for the
-// UI while writes are durable. Swapping this file's internals for Supabase
-// later does not require touching any component.
+// Everything the UI needs goes through this module. Data lives on the
+// EduBridge API server (Express + SQLite). After sign-in the server sends a
+// snapshot of everything this user is allowed to see, which is held in an
+// in-memory cache so reads stay synchronous for the UI. Every write goes to
+// the API first, then the snapshot is reloaded so all screens stay in sync.
 
 import { get, set, del } from 'idb-keyval'
-import { buildSeed } from './seed'
+import { api, tokenStore } from './api'
 
-const KEY = 'edubridge-db-v1'
+// The last snapshot is kept on the device so the installed app can still open
+// and show data with no connection. Writes need the server.
+const OFFLINE_KEY = 'edubridge-offline-v1'
 
-let cache = null
+const empty = (institute = { id: 'inst', name: 'EduBridge', tagline: '' }) => ({
+  version: 1,
+  institute,
+  batches: [],
+  users: [],
+  students: [],
+  parents: [],
+  parentLinks: [],
+  materials: [],
+  quizzes: [],
+  attempts: [],
+  attendance: [],
+  marks: [],
+  fees: [],
+  payments: [],
+  notifications: [],
+  reads: [],
+})
+
+let cache = empty()
 const listeners = new Set()
 
 const clone = (v) => JSON.parse(JSON.stringify(v))
-const uid = (prefix) => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`
+const notify = () => listeners.forEach((fn) => fn())
 
-async function persist() {
-  await set(KEY, cache)
-  listeners.forEach((fn) => fn())
-}
-
-export async function initDb() {
-  const stored = await get(KEY)
-  cache = stored && stored.version === 1 ? stored : buildSeed()
-  if (!stored) await set(KEY, cache)
+// Pulls the signed-in user's snapshot from the server into the cache.
+export async function reload(user) {
+  cache = await api('/bootstrap')
+  notify()
+  try {
+    const saved = user ?? (await get(OFFLINE_KEY))?.user
+    if (saved) await set(OFFLINE_KEY, { user: saved, snapshot: cache })
+  } catch {
+    // Storage blocked — offline viewing just won't be available.
+  }
   return cache
 }
 
+// Called once on app start. Returns the signed-in user if a saved session is
+// still valid, otherwise null.
+export async function initDb() {
+  try {
+    cache = empty(await api('/institute'))
+  } catch {
+    // Server unreachable — the login screen will say so on submit.
+  }
+  if (!tokenStore.get()) return null
+  try {
+    const user = await api('/me')
+    await reload(user)
+    return user
+  } catch (err) {
+    // No connection: fall back to the last snapshot saved on this device.
+    if (err.status === 0) {
+      const offline = await get(OFFLINE_KEY).catch(() => null)
+      if (offline?.snapshot) {
+        cache = offline.snapshot
+        return offline.user
+      }
+    }
+    tokenStore.clear()
+    return null
+  }
+}
+
 export async function resetDb() {
-  await del(KEY)
-  cache = buildSeed()
-  await persist()
+  await api('/admin/reset', { method: 'POST' })
+  await reload()
 }
 
 export function subscribe(fn) {
@@ -91,12 +140,18 @@ export function childrenOfParent(parentId) {
 
 // ---------- auth ----------
 
-export function authenticate(loginId, password) {
-  const user = db().users.find(
-    (u) => u.loginId === loginId.trim() && u.password === password,
-  )
-  if (!user) return null
-  return { id: user.id, name: user.name, role: user.role, loginId: user.loginId }
+export async function login(loginId, password) {
+  const { token, user } = await api('/auth/login', { method: 'POST', body: { loginId, password } })
+  tokenStore.set(token)
+  await reload(user)
+  return user
+}
+
+export function logout() {
+  tokenStore.clear()
+  del(OFFLINE_KEY).catch(() => {})
+  cache = empty(cache.institute)
+  notify()
 }
 
 // ---------- study material ----------
@@ -109,15 +164,15 @@ export function listMaterials({ batchId } = {}) {
 }
 
 export async function addMaterial(data) {
-  const material = { id: uid('m'), uploadedAt: new Date().toISOString(), ...data }
-  db().materials.push(material)
-  await persist()
-  return material
+  const result = await api('/materials', { method: 'POST', body: data })
+  await reload()
+  return result
 }
 
 export async function deleteMaterial(id) {
-  cache.materials = db().materials.filter((m) => m.id !== id)
-  await persist()
+  const result = await api(`/materials/${id}`, { method: 'DELETE' })
+  await reload()
+  return result
 }
 
 // ---------- quizzes ----------
@@ -145,44 +200,20 @@ export function listAttempts(quizId) {
 }
 
 export async function addQuiz(data) {
-  const quiz = {
-    id: uid('q'),
-    publishedAt: new Date().toISOString(),
-    ...data,
-    questions: data.questions.map((q, i) => ({ ...q, id: `${uid('qq')}-${i}`, marks: 1 })),
-  }
-  db().quizzes.push(quiz)
-  await persist()
-  return quiz
+  const result = await api('/quizzes', { method: 'POST', body: data })
+  await reload()
+  return result
 }
 
 export async function deleteQuiz(id) {
-  cache.quizzes = db().quizzes.filter((q) => q.id !== id)
-  cache.attempts = db().attempts.filter((a) => a.quizId !== id)
-  await persist()
+  const result = await api(`/quizzes/${id}`, { method: 'DELETE' })
+  await reload()
+  return result
 }
 
 export async function submitAttempt(quizId, studentId, answers) {
-  const quiz = getQuiz(quizId)
-  if (!quiz) throw new Error('Quiz not found')
-
-  let score = 0
-  for (const q of quiz.questions) {
-    if (answers[q.id] === q.correctIndex) score += q.marks
-  }
-  const maxScore = quiz.questions.reduce((sum, q) => sum + q.marks, 0)
-
-  const attempt = {
-    id: uid('at'),
-    quizId,
-    studentId,
-    answers,
-    score,
-    maxScore,
-    attemptedAt: new Date().toISOString(),
-  }
-  db().attempts.push(attempt)
-  await persist()
+  const attempt = await api(`/quizzes/${quizId}/attempts`, { method: 'POST', body: { answers } })
+  await reload()
   return attempt
 }
 
@@ -210,21 +241,9 @@ export function attendanceSummary(studentId) {
   return { present, late, absent, total, percent }
 }
 
-export async function markAttendance(batchId, date, statusByStudent, markedBy) {
-  cache.attendance = db().attendance.filter(
-    (a) => !(a.batchId === batchId && a.date === date),
-  )
-  for (const [studentId, status] of Object.entries(statusByStudent)) {
-    cache.attendance.push({
-      id: uid('att'),
-      studentId,
-      batchId,
-      date,
-      status,
-      markedBy,
-    })
-  }
-  await persist()
+export async function markAttendance(batchId, date, statusByStudent) {
+  await api(`/attendance/${batchId}/${date}`, { method: 'PUT', body: { statuses: statusByStudent } })
+  await reload()
 }
 
 // ---------- marks / report card ----------
@@ -237,15 +256,15 @@ export function marksFor(studentId) {
 }
 
 export async function addMarks(data) {
-  const row = { id: uid('mk'), enteredAt: new Date().toISOString(), ...data }
-  db().marks.push(row)
-  await persist()
-  return row
+  const result = await api('/marks', { method: 'POST', body: data })
+  await reload()
+  return result
 }
 
 export async function deleteMarks(id) {
-  cache.marks = db().marks.filter((m) => m.id !== id)
-  await persist()
+  const result = await api(`/marks/${id}`, { method: 'DELETE' })
+  await reload()
+  return result
 }
 
 // ---------- fees ----------
@@ -275,39 +294,15 @@ export function feeStats() {
 }
 
 export async function addFee(data) {
-  const fee = { id: uid('f'), status: 'due', ...data }
-  db().fees.push(fee)
-  await persist()
-  return fee
+  const result = await api('/fees', { method: 'POST', body: data })
+  await reload()
+  return result
 }
 
 export async function recordPayment(feeId, mode) {
-  const fee = db().fees.find((f) => f.id === feeId)
-  if (!fee) return
-  fee.status = 'paid'
-  db().payments.push({
-    id: uid('pay'),
-    feeId,
-    studentId: fee.studentId,
-    amount: fee.amount,
-    paidOn: new Date().toISOString().slice(0, 10),
-    mode,
-  })
-  await persist()
-}
-
-// Refresh overdue flags based on today's date. Called once on app start —
-// this is the local stand-in for the scheduled job described in the plan.
-export async function refreshOverdueFees() {
-  const today = new Date().toISOString().slice(0, 10)
-  let changed = false
-  for (const fee of db().fees) {
-    if (fee.status === 'due' && fee.dueDate < today) {
-      fee.status = 'overdue'
-      changed = true
-    }
-  }
-  if (changed) await persist()
+  const result = await api(`/fees/${feeId}/payments`, { method: 'POST', body: { mode } })
+  await reload()
+  return result
 }
 
 // ---------- notifications ----------
@@ -346,81 +341,57 @@ export function isRead(userId, notificationId) {
 }
 
 export async function markAllRead(user) {
-  let changed = false
-  for (const n of listNotifications(user)) {
-    if (!isRead(user.id, n.id)) {
-      db().reads.push({ userId: user.id, notificationId: n.id })
-      changed = true
-    }
-  }
-  // Persisting unconditionally would notify subscribers on every visit, which
-  // re-triggers the caller's effect and loops.
-  if (changed) await persist()
-  return changed
+  const ids = listNotifications(user)
+    .filter((n) => !isRead(user.id, n.id))
+    .map((n) => n.id)
+  // Only hit the server when something changed — reloading notifies
+  // subscribers, which would re-trigger the caller's effect and loop.
+  if (ids.length === 0) return false
+  await api('/notifications/read', { method: 'POST', body: { ids } })
+  await reload()
+  return true
 }
 
 export async function addNotification(data) {
-  const notification = { id: uid('n'), createdAt: new Date().toISOString(), ...data }
-  db().notifications.push(notification)
-  await persist()
-  return notification
+  const result = await api('/notifications', { method: 'POST', body: data })
+  await reload()
+  return result
 }
 
 export async function deleteNotification(id) {
-  cache.notifications = db().notifications.filter((n) => n.id !== id)
-  cache.reads = db().reads.filter((r) => r.notificationId !== id)
-  await persist()
+  const result = await api(`/notifications/${id}`, { method: 'DELETE' })
+  await reload()
+  return result
 }
 
 // ---------- people management ----------
 
-export async function addStudent({ name, loginId, password, batchId, rollNo }) {
-  const userId = uid('u')
-  db().users.push({ id: userId, name, loginId, password, role: 'student' })
-  const student = { id: uid('st'), userId, batchId, rollNo }
-  db().students.push(student)
-  await persist()
-  return student
+export async function addStudent(data) {
+  const result = await api('/students', { method: 'POST', body: data })
+  await reload()
+  return result
 }
 
-export async function addParent({ name, loginId, password, studentIds }) {
-  const userId = uid('u')
-  db().users.push({ id: userId, name, loginId, password, role: 'parent' })
-  const parent = { id: uid('pa'), userId }
-  db().parents.push(parent)
-  for (const studentId of studentIds) {
-    db().parentLinks.push({ parentId: parent.id, studentId })
-  }
-  await persist()
-  return parent
+export async function addParent(data) {
+  const result = await api('/parents', { method: 'POST', body: data })
+  await reload()
+  return result
 }
 
 export async function removeStudent(studentId) {
-  const student = db().students.find((s) => s.id === studentId)
-  if (!student) return
-  cache.students = db().students.filter((s) => s.id !== studentId)
-  cache.users = db().users.filter((u) => u.id !== student.userId)
-  cache.parentLinks = db().parentLinks.filter((l) => l.studentId !== studentId)
-  cache.attendance = db().attendance.filter((a) => a.studentId !== studentId)
-  cache.marks = db().marks.filter((m) => m.studentId !== studentId)
-  cache.fees = db().fees.filter((f) => f.studentId !== studentId)
-  cache.attempts = db().attempts.filter((a) => a.studentId !== studentId)
-  await persist()
+  const result = await api(`/students/${studentId}`, { method: 'DELETE' })
+  await reload()
+  return result
 }
 
-export async function addBatch({ name, subject, timing }) {
-  const batch = { id: uid('b'), name, subject, timing }
-  db().batches.push(batch)
-  await persist()
-  return batch
+export async function addBatch(data) {
+  const result = await api('/batches', { method: 'POST', body: data })
+  await reload()
+  return result
 }
 
 export async function removeBatch(batchId) {
-  if (db().students.some((s) => s.batchId === batchId)) {
-    throw new Error('This batch still has students enrolled.')
-  }
-  cache.batches = db().batches.filter((b) => b.id !== batchId)
-  cache.materials = db().materials.filter((m) => m.batchId !== batchId)
-  cache.quizzes = db().quizzes.filter((q) => q.batchId !== batchId)
-  await persist()
+  const result = await api(`/batches/${batchId}`, { method: 'DELETE' })
+  await reload()
+  return result
 }

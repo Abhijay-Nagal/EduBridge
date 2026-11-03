@@ -59,64 +59,118 @@ The demo parent (Sunita Gupta) has **two** children enrolled, so the multi-child
 | Routing | React Router |
 | Charts | Recharts |
 | PWA | `vite-plugin-pwa` (Workbox) |
-| Persistence | IndexedDB via `idb-keyval` |
-| Language | JavaScript (no TypeScript) |
-| Hosting | Vercel |
+| Backend | Node.js + Express (REST API) |
+| Database | PostgreSQL — Neon serverless Postgres in production, embedded PGlite locally |
+| Hosting | Vercel — static PWA + the API as a serverless function (`api/index.js`) |
+| Auth | bcrypt password hashes + JWT bearer tokens, role-based route guards |
+| Language | JavaScript (no TypeScript) + SQL |
 
-### About the data layer
+### Architecture
 
-All data lives in the browser's IndexedDB, seeded on first launch. Everything routes through
-[`src/data/db.js`](src/data/db.js), which is the single data-access layer — no component talks to
-storage directly.
+```
+ Browser (React PWA)                     Node.js server                   Database
+┌───────────────────────┐  HTTP + JSON  ┌───────────────────────────┐ SQL ┌──────────────┐
+│ pages → src/data/db.js │ ────────────▶ │ Express REST routes       │ ──▶ │ PostgreSQL   │
+│ in-memory snapshot     │ ◀──────────── │ JWT auth + role checks    │ ◀── │ 16 tables    │
+└───────────────────────┘   JWT token    │ grading, overdue fees     │     └──────────────┘
+                                         └───────────────────────────┘
+```
 
-This means the app is **fully functional with zero backend setup**, which is what makes the one-link
-Vercel deploy work. The trade-off is that data is per-device: changes an admin makes on a laptop will
-not appear on a phone, because they are different browsers.
+- **Three tiers.** The React frontend never touches the database. It talks only to the REST API in
+  [`server/index.js`](server/index.js), which reads and writes the relational schema in
+  [`server/schema.sql`](server/schema.sql).
+- **One login system, three roles.** Passwords are stored as bcrypt hashes. A successful login returns
+  a signed JWT, which is sent with every request; middleware rejects missing or invalid tokens and
+  restricts write routes to the admin role.
+- **Role-scoped data.** After sign-in the client calls `GET /api/bootstrap` and receives only what that
+  user may see: an admin gets everything, a student only their own batch and records, a parent only
+  their children's. Quiz answer keys are withheld from students until they have submitted.
+- **Business rules on the server.** Quiz grading, the overdue-fee check and cascading deletes (via
+  `ON DELETE CASCADE` foreign keys) all happen server-side, so they cannot be tampered with from the
+  browser.
+- **The UI did not need rewriting.** Every screen already went through
+  [`src/data/db.js`](src/data/db.js). That module now keeps the server snapshot in memory, so reads stay
+  instant, and every write goes to the API and then refreshes the snapshot.
+- **Shared data.** A change made by the admin on one device is visible to students and parents on any
+  other device.
 
-Moving to a shared backend (Supabase was the plan) means reimplementing the functions in `db.js`
-against it. No component changes are required — that isolation was deliberate.
+### REST API
+
+| Method | Endpoint | Who | Purpose |
+|---|---|---|---|
+| POST | `/api/auth/login` | anyone | Verify password, return JWT + user |
+| GET | `/api/me` | signed in | Current user from token |
+| GET | `/api/bootstrap` | signed in | Role-scoped snapshot of all data |
+| GET | `/api/institute` | anyone | Institute name for the login screen |
+| POST / DELETE | `/api/batches`, `/api/batches/:id` | admin | Create / remove a batch |
+| POST / DELETE | `/api/students`, `/api/students/:id` | admin | Enrol / remove a student (cascades) |
+| POST | `/api/parents` | admin | Create parent and link children |
+| POST / DELETE | `/api/materials`, `/api/materials/:id` | admin | Study material |
+| POST / DELETE | `/api/quizzes`, `/api/quizzes/:id` | admin | Publish / remove a quiz |
+| POST | `/api/quizzes/:id/attempts` | student | Submit answers; graded on the server |
+| PUT | `/api/attendance/:batchId/:date` | admin | Save a batch's register for a day |
+| POST / DELETE | `/api/marks`, `/api/marks/:id` | admin | Report-card entries |
+| POST | `/api/fees` | admin | Add a fee entry |
+| POST | `/api/fees/:id/payments` | admin | Record a payment |
+| POST / DELETE | `/api/notifications`, `/api/notifications/:id` | admin | Post / remove a notice |
+| POST | `/api/notifications/read` | signed in | Mark notices as read |
+| POST | `/api/admin/reset` | admin | Restore the demo dataset |
+
+Every request is logged in the server terminal, so during a demo you can show each click in the app
+producing an API call.
 
 ---
 
 ## Running locally
+
+Requires **Node.js 20 or newer**. No database server or account is needed locally: without a
+`DATABASE_URL`, the API uses PGlite, a full PostgreSQL engine that runs inside Node and stores its files
+in `server/data/pglite/`.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open the printed URL (usually `http://localhost:5173`).
+This starts the API on `http://localhost:4000` and the Vite frontend on `http://localhost:5173`
+(Vite forwards `/api` to the API). Open the frontend URL.
+
+On first start the server creates the tables from [`server/schema.sql`](server/schema.sql) and loads the demo dataset.
 
 ```bash
+npm run db:reset  # wipe the database, reload the demo data and start the API
 npm run build     # production build into dist/
-npm run preview   # serve the production build locally
+npm start         # one server on :4000 serving the API and the built app
 npm run icons     # regenerate PWA icons from public/favicon.svg
 ```
 
+To work against the real hosted database instead, put its connection string in `DATABASE_URL` before
+running `npm run dev`.
+
 > The service worker is disabled in dev (`devOptions.enabled: false`) so it doesn't cache
-> your changes while you work. Install/offline behaviour only applies to the built app —
-> test it with `npm run preview`, not `npm run dev`.
+> your changes while you work. To test install behaviour, use `npm run build && npm start`.
 
 ---
 
 ## Deploying to Vercel (CI/CD)
 
+Everything runs on Vercel: the built PWA is served as static files, and every `/api/*` request is
+rewritten to one serverless function ([`api/index.js`](api/index.js)) that runs the same Express app.
+
 One-time setup:
 
-1. Push this repo to GitHub.
-2. Go to [vercel.com/new](https://vercel.com/new) and import the repository.
-3. Vercel auto-detects Vite — leave the defaults:
-   - Framework preset: **Vite**
-   - Build command: `npm run build`
-   - Output directory: `dist`
-4. Deploy.
+1. Push this repo to GitHub and import it at [vercel.com/new](https://vercel.com/new). Vercel
+   auto-detects Vite; leave the defaults.
+2. **Storage → Create Database → Neon** (free plan, Singapore region, to sit next to the function in
+   `sin1`) and connect it to the project. This adds `DATABASE_URL`.
+3. **Settings → Environment Variables:** add `JWT_SECRET` with any long random string.
+4. Redeploy. On the first API request the function creates the tables and loads the demo data.
 
-After that it's automatic: **every push to `main` triggers a new deployment.** Pull requests get
-their own preview URL.
+After that **every push to `main` deploys automatically.** Pull requests get their own preview URL.
 
-`vercel.json` handles the SPA rewrite (so deep links like `/student/quizzes` work on refresh) and
-sets cache headers — long-lived for hashed assets, no-cache for the service worker so updates land
-immediately.
+`vercel.json` routes `/api/*` to the function, rewrites everything else to `index.html` so deep links
+work on refresh, pins the function to the Singapore region, and sets cache headers: long-lived for
+hashed assets, no-cache for the service worker so updates land immediately.
 
 ---
 
@@ -129,7 +183,7 @@ immediately.
    tap **Share** → **Add to Home Screen**.
 4. Launch it from the home-screen icon. It opens standalone, with no browser chrome.
 
-The app works offline after the first load — Workbox precaches the shell, and all data is local anyway.
+Workbox precaches the app shell, so it opens instantly. The last data you saw is also kept on the device, so the installed app still opens and shows your dashboard with no signal. Signing in and saving changes need a connection.
 
 > Installation requires HTTPS, which Vercel provides automatically. It will not offer to install over
 > plain `http://` (except on `localhost`).
@@ -139,15 +193,26 @@ The app works offline after the first load — Workbox precaches the shell, and 
 ## Project structure
 
 ```
+server/
+├── app.js                  Express app: auth, role guards, all REST routes
+├── index.js                runs the app as a local server (dev / npm start)
+├── db.js                   Postgres connection (Neon or PGlite), seeding, role-scoped snapshot
+├── schema.sql              relational schema (16 tables, foreign keys)
+└── data/                   local PGlite database files (git-ignored)
+
+api/
+└── index.js                Vercel serverless entry — exports the Express app
+
 src/
 ├── App.jsx                 route table + role guards
 ├── main.jsx                entry point
 ├── index.css               Tailwind layers and component classes
 ├── context/
-│   └── AuthContext.jsx     session, DB bootstrap, change notifications
+│   └── AuthContext.jsx     session (JWT), bootstrap, change notifications
 ├── data/
-│   ├── db.js               THE data-access layer — swap this for a real backend
-│   └── seed.js             demo dataset
+│   ├── api.js              fetch wrapper: base URL, bearer token, errors
+│   ├── db.js               THE data-access layer — snapshot cache + API writes
+│   └── seed.js             demo dataset (used by the server to seed the database)
 ├── components/             shared UI (Layout, charts, modals, icons, …)
 └── pages/
     ├── Login.jsx
@@ -169,9 +234,9 @@ src/
 
 ## Known limitations
 
-- **Data is per-device.** There is no shared server, so two devices do not see each other's changes.
-- **Passwords are stored in plain text** in the local database. Acceptable for a local-only demo;
-  must be replaced with proper hashing before any real deployment.
-- **No file uploads.** Study material is written notes or external links. Real file storage needs a
-  backend bucket.
-- Resetting browser site data wipes everything and re-seeds on next load.
+- **Demo-grade secrets.** The JWT secret has a development default. Set `JWT_SECRET` in the environment
+  for anything beyond a local demo.
+- **Cold starts.** The free tiers sleep when idle, so the first request after a while can take a
+  couple of seconds.
+- **No file uploads.** Study material is written notes or external links.
+- **No push notifications.** Notices are in-app only, and fee reminders are sent manually by the admin.

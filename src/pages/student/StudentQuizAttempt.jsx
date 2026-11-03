@@ -41,7 +41,13 @@ export default function StudentQuizAttempt() {
       return
     }
     setSubmitting(true)
-    await submitAttempt(quiz.id, student.id, answers)
+    try {
+      await submitAttempt(quiz.id, student.id, answers)
+    } catch (err) {
+      setSubmitting(false)
+      setError(err.message)
+      return
+    }
     setSubmitting(false)
     navigate(`/student/quizzes/${quiz.id}`, { replace: true })
   }
