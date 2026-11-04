@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   addBatch,
   addParent,
@@ -6,6 +6,7 @@ import {
   attendanceSummary,
   getBatches,
   listParents,
+  listPasswordResets,
   listStudents,
   removeBatch,
   removeStudent,
@@ -42,6 +43,8 @@ export default function AdminPeople() {
           </button>
         }
       />
+
+      <PasswordResets />
 
       <div className="mb-4">
         <SegmentedControl
@@ -87,6 +90,50 @@ export default function AdminPeople() {
       />
 
       <Toast message={toast.message} onDone={toast.clear} />
+    </div>
+  )
+}
+
+// Pending forgot-password requests. Admins read the code out to the user.
+function PasswordResets() {
+  const [resets, setResets] = useState([])
+
+  useEffect(() => {
+    let cancelled = false
+    const load = () =>
+      listPasswordResets()
+        .then((rows) => !cancelled && setResets(rows))
+        .catch(() => {})
+    load()
+    const timer = setInterval(load, 30000)
+    return () => {
+      cancelled = true
+      clearInterval(timer)
+    }
+  }, [])
+
+  if (resets.length === 0) return null
+
+  return (
+    <div className="card animate-fade-up mb-4 border border-amber-200 bg-amber-50">
+      <p className="text-sm font-bold text-amber-900">Password reset requests</p>
+      <p className="mb-3 text-xs text-amber-800">Confirm who is asking before sharing a code.</p>
+      <div className="space-y-2">
+        {resets.map((r) => (
+          <div key={r.loginId} className="flex items-center justify-between gap-3 rounded-xl bg-white px-3 py-2">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-slate-900">
+                {r.name} <span className="text-xs font-normal capitalize text-slate-500">· {r.role}</span>
+              </p>
+              <p className="font-mono text-[11px] text-slate-400">
+                {r.loginId} · expires{' '}
+                {new Date(r.expiresAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </p>
+            </div>
+            <span className="shrink-0 font-mono text-lg font-bold tracking-widest text-brand-700">{r.code}</span>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

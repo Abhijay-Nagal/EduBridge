@@ -147,6 +147,16 @@ export async function login(loginId, password) {
   return user
 }
 
+export async function requestPasswordReset(loginId) {
+  await api('/auth/forgot', { method: 'POST', body: { loginId } })
+}
+
+export async function resetPassword(loginId, code, password) {
+  await api('/auth/reset', { method: 'POST', body: { loginId, code, password } })
+}
+
+export const listPasswordResets = () => api('/password-resets')
+
 export function logout() {
   tokenStore.clear()
   del(OFFLINE_KEY).catch(() => {})

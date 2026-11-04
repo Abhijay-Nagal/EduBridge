@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { DEMO_ACCOUNTS } from '../data/seed'
-import { getInstitute } from '../data/db'
+import { getInstitute, requestPasswordReset, resetPassword } from '../data/db'
 import { GraduationIcon, ShieldIcon, UsersIcon } from '../components/Icons'
 import Mascot from '../components/Mascot'
 import { LogoMark } from '../components/Logo'
@@ -23,6 +23,8 @@ export default function Login() {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [focused, setFocused] = useState(null)
+  const [forgot, setForgot] = useState(false)
+  const [notice, setNotice] = useState('')
 
   // The mascot reflects what is happening on the form, and rests otherwise.
   const mood = busy ? 'cheer' : error ? 'think' : focused === 'password' ? 'sleep' : 'idle'
@@ -83,6 +85,19 @@ export default function Login() {
           </div>
         </div>
 
+        {forgot ? (
+          <ForgotPassword
+            initialLoginId={loginId}
+            onCancel={() => setForgot(false)}
+            onDone={(id) => {
+              setForgot(false)
+              setLoginId(id)
+              setPassword('')
+              setError('')
+              setNotice('Password updated. Sign in with your new password.')
+            }}
+          />
+        ) : (
         <form
           onSubmit={submit}
           className="animate-slide-up rounded-3xl bg-white p-6 shadow-2xl shadow-brand-950/30"
@@ -135,10 +150,29 @@ export default function Login() {
             </p>
           )}
 
+          {notice && !error && (
+            <p className="animate-pop mb-4 rounded-xl bg-emerald-50 px-3 py-2.5 text-sm font-medium text-emerald-700">
+              {notice}
+            </p>
+          )}
+
           <button type="submit" className="btn-primary w-full py-3.5 text-base" disabled={busy}>
             {busy ? 'Signing in…' : 'Sign in'}
           </button>
+
+          <button
+            type="button"
+            className="mt-3 w-full text-center text-sm font-semibold text-brand-600 hover:text-brand-700"
+            onClick={() => {
+              setError('')
+              setNotice('')
+              setForgot(true)
+            }}
+          >
+            Forgot password?
+          </button>
         </form>
+        )}
 
         <div className="animate-slide-up mt-6" style={{ animationDelay: '0.26s' }}>
           <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wider text-white/55">
@@ -174,5 +208,151 @@ export default function Login() {
         </div>
       </div>
     </div>
+  )
+}
+
+// Two steps: ask for a reset code, then enter it with a new password. The code
+// goes to the institute admin, who passes it on — there is no SMS gateway.
+function ForgotPassword({ initialLoginId, onCancel, onDone }) {
+  const [step, setStep] = useState('request')
+  const [loginId, setLoginId] = useState(initialLoginId)
+  const [code, setCode] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  const run = async (fn) => {
+    setError('')
+    setBusy(true)
+    try {
+      await fn()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const submit = (e) => {
+    e.preventDefault()
+    if (step === 'request') {
+      run(async () => {
+        await requestPasswordReset(loginId.trim())
+        setStep('reset')
+      })
+      return
+    }
+    if (password !== confirm) {
+      setError('The two passwords do not match.')
+      return
+    }
+    run(async () => {
+      await resetPassword(loginId.trim(), code, password)
+      onDone(loginId.trim())
+    })
+  }
+
+  return (
+    <form onSubmit={submit} className="animate-slide-up rounded-3xl bg-white p-6 shadow-2xl shadow-brand-950/30">
+      <h2 className="text-lg font-bold text-slate-900">Reset password</h2>
+      <p className="mb-5 mt-0.5 text-sm text-slate-500">
+        {step === 'request'
+          ? 'Enter your registered phone number to request a 6-digit reset code.'
+          : 'Request sent. Ask the institute admin for your reset code — it is valid for 15 minutes.'}
+      </p>
+
+      <div className="mb-4">
+        <label className="label" htmlFor="resetLoginId">
+          Phone number
+        </label>
+        <input
+          id="resetLoginId"
+          className="input"
+          inputMode="numeric"
+          autoComplete="username"
+          placeholder="9000000010"
+          value={loginId}
+          onChange={(e) => setLoginId(e.target.value)}
+          disabled={step === 'reset'}
+          required
+        />
+      </div>
+
+      {step === 'reset' && (
+        <>
+          <div className="mb-4">
+            <label className="label" htmlFor="resetCode">
+              Reset code
+            </label>
+            <input
+              id="resetCode"
+              className="input font-mono tracking-[0.3em]"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              maxLength={6}
+              placeholder="000000"
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="label" htmlFor="newPassword">
+              New password
+            </label>
+            <input
+              id="newPassword"
+              type="password"
+              className="input"
+              autoComplete="new-password"
+              minLength={6}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="label" htmlFor="confirmPassword">
+              Confirm new password
+            </label>
+            <input
+              id="confirmPassword"
+              type="password"
+              className="input"
+              autoComplete="new-password"
+              minLength={6}
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              required
+            />
+          </div>
+        </>
+      )}
+
+      {error && (
+        <p className="animate-pop mb-4 rounded-xl bg-rose-50 px-3 py-2.5 text-sm font-medium text-rose-700">{error}</p>
+      )}
+
+      <button type="submit" className="btn-primary w-full py-3.5 text-base" disabled={busy}>
+        {busy ? 'Please wait…' : step === 'request' ? 'Request reset code' : 'Set new password'}
+      </button>
+
+      <div className="mt-3 flex justify-between text-sm font-semibold">
+        <button type="button" className="text-slate-500 hover:text-slate-700" onClick={onCancel}>
+          Back to sign in
+        </button>
+        {step === 'reset' && (
+          <button
+            type="button"
+            className="text-brand-600 hover:text-brand-700"
+            disabled={busy}
+            onClick={() => run(() => requestPasswordReset(loginId.trim()))}
+          >
+            Send a new code
+          </button>
+        )}
+      </div>
+    </form>
   )
 }

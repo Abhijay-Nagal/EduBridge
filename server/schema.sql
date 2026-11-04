@@ -144,3 +144,13 @@ CREATE TABLE IF NOT EXISTS notification_reads (
   read_at         TEXT NOT NULL,
   PRIMARY KEY (user_id, notification_id)
 );
+
+-- One pending password reset per user. The code is relayed by the admin (the
+-- institute has no SMS gateway), so it is short-lived and attempt-limited.
+CREATE TABLE IF NOT EXISTS password_resets (
+  user_id    TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  code       TEXT NOT NULL,
+  attempts   INTEGER NOT NULL DEFAULT 0,
+  expires_at TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);

@@ -10,6 +10,7 @@
 import express from 'express'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
+import crypto from 'node:crypto'
 import { getInstitute, init, one, q, resetDemoData, snapshotFor, tx, uid } from './db.js'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'edubridge-dev-secret'
@@ -83,6 +84,51 @@ app.post('/api/auth/login', h(async (req) => {
   }
   const user = { id: row.id, name: row.name, role: row.role, loginId: row.login_id }
   return { token: jwt.sign(user, JWT_SECRET, { expiresIn: '30d' }), user }
+}))
+
+// Forgot password: the request creates a 6-digit code that admins see on the
+// People page and pass on to the user, who then sets a new password with it.
+const RESET_TTL_MS = 15 * 60 * 1000
+const RESET_MAX_ATTEMPTS = 5
+
+app.post('/api/auth/forgot', h(async (req) => {
+  const loginId = String(req.body.loginId || '').trim()
+  if (!loginId) throw fail(400, 'Enter your phone number.')
+  const row = await one('SELECT id FROM users WHERE login_id = ?', loginId)
+  // Same answer either way, so the endpoint does not reveal which numbers exist.
+  if (row) {
+    const code = String(crypto.randomInt(0, 1_000_000)).padStart(6, '0')
+    const expires = new Date(Date.now() + RESET_TTL_MS).toISOString()
+    await q(
+      `INSERT INTO password_resets VALUES (?, ?, 0, ?, ?)
+       ON CONFLICT (user_id) DO UPDATE SET code = EXCLUDED.code, attempts = 0,
+         expires_at = EXCLUDED.expires_at, created_at = EXCLUDED.created_at`,
+      row.id, code, expires, now(),
+    )
+  }
+  return { ok: true }
+}))
+
+app.post('/api/auth/reset', h(async (req) => {
+  const loginId = String(req.body.loginId || '').trim()
+  const code = String(req.body.code || '').trim()
+  const password = String(req.body.password || '')
+  if (password.length < 6) throw fail(400, 'Use at least 6 characters for the new password.')
+  const row = await one(
+    'SELECT r.* FROM password_resets r JOIN users u ON u.id = r.user_id WHERE u.login_id = ?',
+    loginId,
+  )
+  if (!row || row.expires_at < now() || row.attempts >= RESET_MAX_ATTEMPTS) {
+    throw fail(400, 'This reset code has expired. Request a new one.')
+  }
+  if (row.code !== code) {
+    await q('UPDATE password_resets SET attempts = attempts + 1 WHERE user_id = ?', row.user_id)
+    throw fail(400, 'That code is not correct.')
+  }
+  await tx(async (q) => {
+    await q('UPDATE users SET password_hash = ? WHERE id = ?', bcrypt.hashSync(password, 8), row.user_id)
+    await q('DELETE FROM password_resets WHERE user_id = ?', row.user_id)
+  })
 }))
 
 app.use('/api', auth)
@@ -286,6 +332,18 @@ app.post('/api/notifications/read', h(async (req) => {
       await q('INSERT INTO notification_reads VALUES (?, ?, ?) ON CONFLICT DO NOTHING', req.user.id, id, now())
     }
   })
+}))
+
+// ---------- password resets ----------
+
+app.get('/api/password-resets', admin, h(async () => {
+  const rows = await q(
+    `SELECT u.name, u.login_id, u.role, r.code, r.expires_at FROM password_resets r
+     JOIN users u ON u.id = r.user_id
+     WHERE r.expires_at > ? AND r.attempts < ? ORDER BY r.created_at DESC`,
+    now(), RESET_MAX_ATTEMPTS,
+  )
+  return rows.map((r) => ({ name: r.name, loginId: r.login_id, role: r.role, code: r.code, expiresAt: r.expires_at }))
 }))
 
 // ---------- demo helper ----------
