@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { XIcon } from './Icons'
 import { useCountUp } from '../hooks/useCountUp'
 import Mascot from './Mascot'
@@ -112,14 +113,16 @@ export function Modal({ open, onClose, title, children, footer }) {
 
   if (!open) return null
 
-  return (
+  // Portalled to <body>: the page wrapper animates with a transform, which would
+  // otherwise trap this fixed overlay inside the content column, under the nav bar.
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
       <div
         className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
         style={{ animation: 'page-in 0.2s ease-out both' }}
         onClick={onClose}
       />
-      <div className="safe-bottom animate-slide-up relative z-10 max-h-[88vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-5 shadow-xl sm:rounded-3xl">
+      <div className="safe-bottom animate-slide-up relative z-10 max-h-[88dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-5 shadow-xl sm:rounded-3xl">
         <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="text-lg font-bold text-slate-900">{title}</h2>
           <button
@@ -133,7 +136,8 @@ export function Modal({ open, onClose, title, children, footer }) {
         {children}
         {footer && <div className="mt-5 flex gap-2">{footer}</div>}
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 
