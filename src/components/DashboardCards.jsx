@@ -136,10 +136,10 @@ export function ScoreCard({ marks = [], to }) {
   // mixed rather than flat.
   const barFor = (p) =>
     p >= 75
-      ? 'from-emerald-400 to-emerald-600'
+      ? 'bg-lime'
       : p >= 40
-        ? 'from-amber-400 to-amber-600'
-        : 'from-rose-400 to-rose-600'
+        ? 'bg-[#ffe27a]'
+        : 'bg-bubble'
 
   const Wrapper = to ? Link : 'section'
   const wrapperProps = to ? { to } : {}
@@ -147,7 +147,7 @@ export function ScoreCard({ marks = [], to }) {
   return (
     <Wrapper
       {...wrapperProps}
-      className="card group block transition duration-300 hover:-translate-y-0.5 hover:shadow-md"
+      className="card group block transition duration-300 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_#231a24]"
     >
       <CardBackdrop
         tone={tone === 'emerald' ? 'green' : tone === 'rose' ? 'red' : 'amber'}
@@ -169,7 +169,7 @@ export function ScoreCard({ marks = [], to }) {
             {delta !== null && delta !== 0 && (
               <span
                 className={`chip ${
-                  delta > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
+                  delta > 0 ? 'bg-lime text-ink' : 'bg-bubble text-ink'
                 }`}
               >
                 {delta > 0 ? '▲' : '▼'} {Math.abs(delta)}%
@@ -198,9 +198,9 @@ export function ScoreCard({ marks = [], to }) {
                   {m.marks}/{m.maxMarks}
                 </span>
               </div>
-              <div className="h-1.5 overflow-hidden rounded-full bg-slate-200">
+              <div className="h-3 overflow-hidden rounded-full border-2 border-ink bg-white">
                 <div
-                  className={`fill-in h-full rounded-full bg-gradient-to-r ${barFor(p)}`}
+                  className={`fill-in h-full rounded-full border-r-2 border-ink ${barFor(p)}`}
                   style={{ width: `${p}%`, animationDelay: `${120 + i * 110}ms` }}
                 />
               </div>
@@ -230,7 +230,7 @@ export function QuizCard({ quiz, index = 0 }) {
   return (
     <Link
       to={`/student/quizzes/${quiz.id}`}
-      className="card card-accent group flex items-center gap-3 overflow-hidden pl-5 transition duration-300 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.99]"
+      className="card card-accent group flex items-center gap-3 overflow-hidden pl-5 transition duration-300 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_#231a24] active:scale-[0.99]"
       style={{ animationDelay: `${index * 70}ms` }}
     >
       <CardBackdrop
@@ -248,7 +248,7 @@ export function QuizCard({ quiz, index = 0 }) {
       </span>
 
       <span className="min-w-0 flex-1">
-        <span className="block truncate font-semibold text-slate-900">{quiz.title}</span>
+        <span className="block font-semibold leading-snug text-slate-900">{quiz.title}</span>
         <span className="mt-1 flex flex-wrap items-center gap-1.5">
           <Badge tone="brand">{quiz.subject}</Badge>
           <Badge tone="slate">{quiz.questions.length} questions</Badge>
