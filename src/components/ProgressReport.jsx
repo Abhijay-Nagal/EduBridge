@@ -76,9 +76,9 @@ export default function ProgressReport({ studentId }) {
                 <Line
                   type="monotone"
                   dataKey="percent"
-                  stroke="#4f46e5"
+                  stroke="#231a24"
                   strokeWidth={3}
-                  dot={{ r: 4, fill: '#4f46e5' }}
+                  dot={{ r: 4, fill: '#231a24' }}
                   activeDot={{ r: 6 }}
                 />
               </LineChart>
@@ -101,7 +101,7 @@ export default function ProgressReport({ studentId }) {
                   contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 4px 16px rgba(15,23,42,0.12)', fontSize: 12 }}
                   formatter={(v) => [`${v}%`, 'Score']}
                 />
-                <Bar dataKey="percent" fill="#6366f1" radius={[6, 6, 0, 0]} maxBarSize={44} />
+                <Bar dataKey="percent" fill="#c5b3e6" stroke="#231a24" strokeWidth={2} radius={[4, 4, 0, 0]} maxBarSize={44} />
               </BarChart>
             </ResponsiveContainer>
           </div>
