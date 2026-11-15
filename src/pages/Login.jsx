@@ -4,13 +4,12 @@ import { useAuth } from '../context/AuthContext'
 import { DEMO_ACCOUNTS } from '../data/seed'
 import { getInstitute, requestPasswordReset, resetPassword } from '../data/db'
 import { GraduationIcon, ShieldIcon, UsersIcon } from '../components/Icons'
-import Mascot from '../components/Mascot'
-import { LogoMark } from '../components/Logo'
+import Logo from '../components/Logo'
 
 const roleMeta = {
-  student: { icon: GraduationIcon, blurb: 'Notes, quizzes & notifications' },
-  parent: { icon: UsersIcon, blurb: 'Attendance, progress & fees' },
-  admin: { icon: ShieldIcon, blurb: 'Run the whole institute' },
+  student: { icon: GraduationIcon },
+  parent: { icon: UsersIcon },
+  admin: { icon: ShieldIcon },
 }
 
 export default function Login() {
@@ -25,16 +24,6 @@ export default function Login() {
   const [focused, setFocused] = useState(null)
   const [forgot, setForgot] = useState(false)
   const [notice, setNotice] = useState('')
-
-  // The mascot reflects what is happening on the form, and rests otherwise.
-  const mood = busy ? 'cheer' : error ? 'think' : focused === 'password' ? 'sleep' : 'idle'
-  const line = busy
-    ? 'Here we go!'
-    : error
-      ? 'Hmm, that did not work.'
-      : focused === 'password'
-        ? 'Eyes closed, promise.'
-        : `Welcome to ${institute.name}!`
 
   const submit = async (e) => {
     e.preventDefault()
@@ -57,32 +46,10 @@ export default function Login() {
   }
 
   return (
-    <div className="safe-top safe-bottom relative flex min-h-full flex-col justify-center overflow-hidden bg-gradient-to-b from-brand-700 via-brand-600 to-brand-900 px-4 py-10">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="halo absolute -left-24 top-0 h-72 w-72 rounded-full bg-brand-400/25 blur-3xl" />
-        <div
-          className="halo absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-violet-400/20 blur-3xl"
-          style={{ animationDelay: '1.4s' }}
-        />
-      </div>
-
+    <div className="safe-top safe-bottom relative flex min-h-full flex-col justify-center overflow-hidden bg-brand-300 px-4 py-10">
       <div className="relative mx-auto w-full max-w-md">
-        <div className="animate-slide-up mb-2 flex flex-col items-center">
-          <LogoMark size={64} className="drop-shadow-xl" />
-          <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-white">
-            Edu<span className="text-brand-200">Bridge</span>
-          </h1>
-          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
-            {institute.tagline}
-          </p>
-        </div>
-
-        {/* mascot greeter */}
-        <div className="animate-slide-up mb-1 flex items-end justify-center gap-1" style={{ animationDelay: '0.1s' }}>
-          <Mascot size={104} mood={mood} lookAt interactive greet />
-          <div className="bubble-bob animate-pop mb-6 max-w-[190px] rounded-2xl bg-white/15 px-3 py-2 text-sm font-medium text-white backdrop-blur">
-            {line}
-          </div>
+        <div className="animate-slide-up mb-6 flex justify-center">
+          <Logo size={52} />
         </div>
 
         {forgot ? (
@@ -100,12 +67,12 @@ export default function Login() {
         ) : (
         <form
           onSubmit={submit}
-          className="animate-slide-up rounded-3xl bg-white p-6 shadow-2xl shadow-brand-950/30"
+          className="animate-slide-up rounded-lg border-2 border-ink bg-cream p-6 shadow-pop"
           style={{ animationDelay: '0.18s' }}
         >
-          <h2 className="text-lg font-bold text-slate-900">Sign in</h2>
-          <p className="mb-5 mt-0.5 text-sm text-slate-500">
-            Use the phone number registered with the institute.
+          <h2 className="font-display text-3xl font-extrabold text-ink">Sign in</h2>
+          <p className="mb-5 mt-1 text-sm text-ink/65">
+            Use your registered phone number.
           </p>
 
           <div className="mb-4">
@@ -145,13 +112,13 @@ export default function Login() {
           </div>
 
           {error && (
-            <p className="animate-pop mb-4 rounded-xl bg-rose-50 px-3 py-2.5 text-sm font-medium text-rose-700">
+            <p className="animate-pop mb-4 rounded-md border-2 border-ink bg-bubble px-3 py-2.5 text-sm font-bold text-ink">
               {error}
             </p>
           )}
 
           {notice && !error && (
-            <p className="animate-pop mb-4 rounded-xl bg-emerald-50 px-3 py-2.5 text-sm font-medium text-emerald-700">
+            <p className="animate-pop mb-4 rounded-md border-2 border-ink bg-lime px-3 py-2.5 text-sm font-bold text-ink">
               {notice}
             </p>
           )}
@@ -162,7 +129,7 @@ export default function Login() {
 
           <button
             type="button"
-            className="mt-3 w-full text-center text-sm font-semibold text-brand-600 hover:text-brand-700"
+            className="mt-3 w-full text-center text-sm font-semibold text-ink underline decoration-2 underline-offset-4 hover:bg-lime"
             onClick={() => {
               setError('')
               setNotice('')
@@ -174,12 +141,12 @@ export default function Login() {
         </form>
         )}
 
-        <div className="animate-slide-up mt-6" style={{ animationDelay: '0.26s' }}>
-          <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wider text-white/55">
-            Demo accounts — tap to fill
+        <div className="animate-slide-up mt-8" style={{ animationDelay: '0.26s' }}>
+          <p className="mb-3 font-mono text-[11px] font-bold uppercase tracking-wider text-ink">
+            Demo accounts
           </p>
-          <div className="stagger grid gap-2">
-            {DEMO_ACCOUNTS.map((account) => {
+          <div className="stagger grid gap-3">
+            {DEMO_ACCOUNTS.map((account, i) => {
               const meta = roleMeta[account.role]
               const Icon = meta.icon
               return (
@@ -187,16 +154,13 @@ export default function Login() {
                   key={account.role}
                   type="button"
                   onClick={() => useDemo(account)}
-                  className="group flex items-center gap-3 rounded-2xl bg-white/10 p-3 text-left text-white backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/20 active:scale-[0.99]"
+                  className={`group flex items-center gap-3 rounded-lg border-2 border-ink p-3 text-left text-ink shadow-pop-sm transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop active:translate-x-px active:translate-y-px ${
+                    ['bg-lime', 'bg-bubble', 'bg-white'][i % 3]
+                  }`}
                 >
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/15 transition-transform duration-300 group-hover:scale-110">
-                    <Icon className="h-5 w-5" />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-bold">{account.label}</span>
-                    <span className="block truncate text-xs text-white/70">{meta.blurb}</span>
-                  </span>
-                  <span className="shrink-0 text-right font-mono text-[11px] text-white/70">
+                  <Icon className="h-6 w-6 shrink-0" />
+                  <span className="min-w-0 flex-1 font-display text-lg font-extrabold">{account.label}</span>
+                  <span className="shrink-0 text-right font-mono text-[11px] font-medium">
                     {account.loginId}
                     <br />
                     {account.password}
@@ -254,9 +218,9 @@ function ForgotPassword({ initialLoginId, onCancel, onDone }) {
   }
 
   return (
-    <form onSubmit={submit} className="animate-slide-up rounded-3xl bg-white p-6 shadow-2xl shadow-brand-950/30">
-      <h2 className="text-lg font-bold text-slate-900">Reset password</h2>
-      <p className="mb-5 mt-0.5 text-sm text-slate-500">
+    <form onSubmit={submit} className="animate-slide-up rounded-lg border-2 border-ink bg-cream p-6 shadow-pop">
+      <h2 className="font-display text-3xl font-extrabold text-ink">Reset password</h2>
+      <p className="mb-5 mt-1 text-sm text-ink/65">
         {step === 'request'
           ? 'Enter your registered phone number to request a 6-digit reset code.'
           : 'Request sent. Ask the institute admin for your reset code — it is valid for 15 minutes.'}
@@ -331,7 +295,7 @@ function ForgotPassword({ initialLoginId, onCancel, onDone }) {
       )}
 
       {error && (
-        <p className="animate-pop mb-4 rounded-xl bg-rose-50 px-3 py-2.5 text-sm font-medium text-rose-700">{error}</p>
+        <p className="animate-pop mb-4 rounded-md border-2 border-ink bg-bubble px-3 py-2.5 text-sm font-bold text-ink">{error}</p>
       )}
 
       <button type="submit" className="btn-primary w-full py-3.5 text-base" disabled={busy}>
@@ -339,13 +303,13 @@ function ForgotPassword({ initialLoginId, onCancel, onDone }) {
       </button>
 
       <div className="mt-3 flex justify-between text-sm font-semibold">
-        <button type="button" className="text-slate-500 hover:text-slate-700" onClick={onCancel}>
+        <button type="button" className="text-ink/70 hover:text-ink" onClick={onCancel}>
           Back to sign in
         </button>
         {step === 'reset' && (
           <button
             type="button"
-            className="text-brand-600 hover:text-brand-700"
+            className="text-ink underline decoration-2 underline-offset-4 hover:bg-lime"
             disabled={busy}
             onClick={() => run(() => requestPasswordReset(loginId.trim()))}
           >
