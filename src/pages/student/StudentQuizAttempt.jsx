@@ -4,7 +4,6 @@ import { useAuth } from '../../context/AuthContext'
 import { getAttempt, getQuiz, getStudentRecord, submitAttempt } from '../../data/db'
 import { ArrowLeftIcon, CheckIcon, XIcon } from '../../components/Icons'
 import { Badge, ProgressBar, ProgressRing } from '../../components/ui'
-import Mascot from '../../components/Mascot'
 import Confetti from '../../components/Confetti'
 
 export default function StudentQuizAttempt() {
@@ -94,10 +93,10 @@ export default function StudentQuizAttempt() {
                       setAnswers((a) => ({ ...a, [q.id]: optionIndex }))
                       setError('')
                     }}
-                    className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm transition active:scale-[0.99] ${
+                    className={`flex w-full items-center gap-3 rounded-md border-2 border-ink px-3 py-3 text-left text-sm transition active:scale-[0.99] ${
                       selected
-                        ? 'bg-brand-600 font-semibold text-white shadow-sm'
-                        : 'bg-slate-50 text-slate-700 ring-1 ring-slate-200 hover:bg-slate-100'
+                        ? 'bg-lime font-bold text-ink shadow-pop-sm'
+                        : 'bg-white text-ink hover:bg-brand-100'
                     }`}
                   >
                     <span
@@ -167,13 +166,6 @@ function QuizResult({ quiz, attempt }) {
         <p className="section-title">Your score</p>
 
         <div className="mt-3 flex items-center justify-center gap-2">
-          <Mascot
-            size={118}
-            mood={restingMood}
-            greet={greetGesture}
-            interactive
-            className="shrink-0"
-          />
           <ProgressRing value={percent} size={112} stroke={11} tone={tone}>
             <div className="text-center">
               <p className="text-2xl font-extrabold leading-none text-slate-900">
