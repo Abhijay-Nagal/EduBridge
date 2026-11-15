@@ -36,7 +36,7 @@ export default function StudentQuizzes() {
                         <QuizIcon />
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate font-semibold text-slate-900">{quiz.title}</span>
+                        <span className="block font-semibold leading-snug text-slate-900">{quiz.title}</span>
                         <span className="mt-1 flex flex-wrap items-center gap-1.5">
                           <Badge tone="brand">{quiz.subject}</Badge>
                           <Badge tone={overdue ? 'red' : 'slate'}>
@@ -71,7 +71,7 @@ export default function StudentQuizzes() {
                           <CheckIcon />
                         </span>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate font-semibold text-slate-900">{quiz.title}</p>
+                          <p className="font-semibold leading-snug text-slate-900">{quiz.title}</p>
                           <p className="text-xs text-slate-500">{quiz.subject}</p>
                         </div>
                         <div className="shrink-0 text-right">
