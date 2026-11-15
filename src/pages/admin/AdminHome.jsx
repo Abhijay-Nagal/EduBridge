@@ -23,7 +23,6 @@ import {
   UsersIcon,
 } from '../../components/Icons'
 import { Badge, StatCard, formatDate, formatRelative, formatRupees } from '../../components/ui'
-import Mascot, { MascotBuddy } from '../../components/Mascot'
 import CardBackdrop from '../../components/CardBackdrop'
 
 const quickActions = [
@@ -84,33 +83,17 @@ export default function AdminHome() {
 
   return (
     <div className="space-y-5">
-      <section className="sheen animate-slide-up relative rounded-3xl bg-gradient-to-br from-brand-600 via-brand-600 to-brand-800 p-5 text-white shadow-lg shadow-brand-900/20">
+      <section className="animate-slide-up relative rounded-lg border-2 border-ink bg-brand-300 p-5 text-ink shadow-pop">
         <div className="relative flex items-center gap-3">
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm text-white/70">{institute.name}</p>
-            <h1 className="truncate text-2xl font-extrabold tracking-tight">Welcome, {firstName}</h1>
-            <p className="mt-1 truncate text-sm text-white/75">
+            <p className="truncate text-sm text-ink/70">{institute.name}</p>
+            <h1 className="truncate text-3xl font-extrabold tracking-tight">Welcome, {firstName}</h1>
+            <p className="mt-1 truncate text-sm text-ink/70">
               {students.length} students · {batches.length} batches
             </p>
           </div>
-          <Mascot size={100} lookAt interactive greet className="-mb-4 -mr-1 shrink-0" />
         </div>
       </section>
-
-      <MascotBuddy
-        size={78}
-        className="animate-page-in"
-        lines={[
-          overdueFees.length > 0
-            ? `${overdueFees.length} fee${overdueFees.length > 1 ? 's are' : ' is'} overdue. Worth chasing today.`
-            : 'No overdue fees. Collection is on track.',
-          lowAttendance.length > 0
-            ? `${lowAttendance.length} student${lowAttendance.length > 1 ? 's are' : ' is'} below 75% attendance.`
-            : 'Every student is above 75% attendance.',
-          `${formatRupees(fees.pending)} still to collect across ${students.length} students.`,
-          'Marking attendance takes about twenty seconds from the Attend tab.',
-        ]}
-      />
 
       <section className="animate-fade-up">
         <h2 className="section-title mb-2">Quick actions</h2>
