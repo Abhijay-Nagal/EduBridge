@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-const COLORS = ['#6366f1', '#8b5cf6', '#f59e0b', '#10b981', '#f43f5e', '#38bdf8']
+const COLORS = ['#c5b3e6', '#dcf75a', '#efa3dc', '#231a24', '#ffe27a']
 
 // One-shot canvas confetti. No dependency, no DOM churn, and it removes its own
 // animation frame as soon as every piece has fallen out of view.
