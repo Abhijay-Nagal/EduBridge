@@ -414,7 +414,7 @@ function AddParentModal({ open, students, onClose, onSaved }) {
                 onClick={() => toggle(s.id)}
                 className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition ${
                   selected.includes(s.id)
-                    ? 'bg-brand-600 font-semibold text-white'
+                    ? 'bg-lime font-bold text-ink'
                     : 'bg-white text-slate-700 ring-1 ring-slate-200'
                 }`}
               >

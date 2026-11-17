@@ -14,7 +14,7 @@
   }
 
   body {
-    @apply bg-slate-100 text-slate-900 antialiased;
+    @apply bg-cream font-sans text-ink antialiased;
     margin: 0;
     overscroll-behavior-y: none;
     -webkit-tap-highlight-color: transparent;
@@ -30,52 +30,43 @@
 }
 
 @layer components {
-  /* Cards carry a faint graph-paper texture and a corner tint, so they never
-     read as plain white. `isolate` lets CardBackdrop sit at z-index -1: behind
-     the content, but still in front of this background. */
   .card {
-    @apply relative isolate rounded-2xl p-4 shadow-sm ring-1 ring-slate-900/5;
-    background-color: rgba(255, 255, 255, 0.92);
-    background-image:
-      radial-gradient(rgba(99, 102, 241, 0.14) 1px, transparent 1px),
-      radial-gradient(120% 90% at 100% 0%, rgba(99, 102, 241, 0.07), transparent 62%);
-    background-size:
-      17px 17px,
-      100% 100%;
-    backdrop-filter: blur(4px);
+    @apply relative isolate rounded-lg border-2 border-ink p-4 shadow-pop;
+    background-color: #fffbf6;
   }
 
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold
-           transition-all duration-200 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-md border-2 border-ink px-4 py-2.5 text-sm font-bold
+           shadow-pop-sm transition-all duration-150
+           hover:-translate-x-px hover:-translate-y-px hover:shadow-pop
+           active:translate-x-[2px] active:translate-y-[2px] active:shadow-none
+           disabled:pointer-events-none disabled:opacity-50;
   }
   .btn-primary {
-    @apply btn shine gradient-live bg-gradient-to-r from-brand-500 via-brand-600 to-brand-700
-           text-white shadow-md shadow-brand-600/25 hover:shadow-lg hover:shadow-brand-600/35;
+    @apply btn bg-lime text-ink;
   }
   .btn-ghost {
-    @apply btn bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50 hover:ring-slate-300;
+    @apply btn bg-white text-ink hover:bg-brand-100;
   }
   .btn-danger {
-    @apply btn bg-rose-50 text-rose-700 ring-1 ring-rose-100 hover:bg-rose-100;
+    @apply btn bg-bubble text-ink;
   }
 
   .input {
-    @apply w-full rounded-xl border-0 bg-slate-100 px-4 py-3 text-sm text-slate-900 placeholder-slate-400
-           ring-1 ring-inset ring-slate-200 transition
-           focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500;
+    @apply w-full rounded-md border-2 border-ink bg-white px-4 py-3 text-sm text-ink placeholder-ink/40
+           transition focus:outline-none focus:shadow-pop-sm;
   }
 
   .label {
-    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500;
+    @apply mb-1.5 block font-mono text-[11px] font-bold uppercase tracking-wider text-ink;
   }
 
   .chip {
-    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold;
+    @apply inline-flex items-center gap-1 rounded-full border-2 border-ink px-2.5 py-0.5 text-xs font-bold;
   }
 
   .section-title {
-    @apply text-xs font-bold uppercase tracking-wider text-slate-400;
+    @apply font-mono text-xs font-bold uppercase tracking-wider text-ink;
   }
 }
 
@@ -853,3 +844,47 @@
     stroke-dashoffset: 0;
   }
 }
+
+
+/* ==========================================================================
+   Neo-brutalist theme: lilac, lime, pink on cream, heavy ink outlines and
+   hard offset shadows. These sit after the utilities so they win over the
+   per-page colour classes that predate the redesign.
+   ========================================================================== */
+
+h1, h2, h3, .font-extrabold {
+  font-family: 'Bricolage Grotesque', 'DM Sans', system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.rounded-3xl, .rounded-2xl { border-radius: 8px; }
+.rounded-xl { border-radius: 6px; }
+.rounded-lg { border-radius: 5px; }
+
+.shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl { box-shadow: 3px 3px 0 #231a24; }
+
+/* legacy status tints -> flat palette */
+.bg-emerald-50, .bg-emerald-500 { background-color: #dcf75a; color: #231a24; }
+.bg-rose-50, .bg-rose-100, .bg-rose-500 { background-color: #efa3dc; color: #231a24; }
+.bg-amber-50, .bg-amber-500 { background-color: #ffe27a; color: #231a24; }
+.bg-sky-50 { background-color: #d8c9f1; color: #231a24; }
+.bg-slate-100, .bg-slate-50 { background-color: #fff1e4; }
+.bg-slate-200 { background-color: #efe3d6; }
+.bg-slate-900 { background-color: #231a24; }
+.text-emerald-600, .text-emerald-700, .text-rose-600, .text-rose-700,
+.text-amber-600, .text-amber-700, .text-amber-900, .text-sky-600, .text-sky-800,
+.text-violet-500, .text-violet-600 { color: #231a24; }
+.text-slate-900, .text-slate-800, .text-slate-700 { color: #231a24; }
+.text-slate-600, .text-slate-500 { color: rgba(35, 26, 36, 0.72); }
+.text-slate-400, .text-slate-300 { color: rgba(35, 26, 36, 0.55); }
+.text-brand-600, .text-brand-700 { color: #231a24; }
+a.text-brand-600 { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.ring-1, .ring-2 { --tw-ring-color: #231a24; }
+.border-slate-100 { border-color: rgba(35, 26, 36, 0.15); }
+.ring-slate-200, .ring-slate-300, .ring-slate-900\/5 { --tw-ring-color: rgba(35, 26, 36, 0.25); }
+
+/* attendance toggles, quiz options and other bordered buttons keep a hard edge */
+button.rounded-xl.ring-1, button.rounded-lg.ring-1 { border: 2px solid #231a24; box-shadow: none; }
+
+:focus-visible { outline: 3px solid #231a24; outline-offset: 2px; }
+::selection { background: #dcf75a; color: #231a24; }

@@ -2,47 +2,49 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { XIcon } from './Icons'
 import { useCountUp } from '../hooks/useCountUp'
-import Mascot from './Mascot'
-import CardBackdrop from './CardBackdrop'
 
 export function PageHeader({ title, subtitle, action }) {
   return (
     <div className="animate-page-in mb-5 flex items-start justify-between gap-3">
       <div className="min-w-0">
-        <h1 className="truncate text-2xl font-extrabold tracking-tight text-slate-900">{title}</h1>
-        {subtitle && <p className="mt-0.5 text-sm text-slate-500">{subtitle}</p>}
+        <h1 className="truncate text-3xl font-extrabold tracking-tight text-ink">{title}</h1>
+        {subtitle && <p className="mt-1 text-sm text-ink/65">{subtitle}</p>}
       </div>
       {action}
     </div>
   )
 }
 
-export function EmptyState({ icon: Icon, title, hint, mascot = true, mood = 'think' }) {
+export function EmptyState({ icon: Icon, title, hint }) {
   return (
     <div className="card animate-pop flex flex-col items-center gap-1 py-8 text-center">
-      <CardBackdrop tone="brand" symbols="book" count={5} grid />
-      {mascot ? (
-        <Mascot size={118} mood={mood} lookAt interactive />
-      ) : (
-        Icon && (
-          <div className="mb-1 grid h-12 w-12 place-items-center rounded-2xl bg-slate-100 text-slate-400">
-            <Icon className="h-6 w-6" />
-          </div>
-        )
+      {Icon && (
+        <div className="mb-2 grid h-12 w-12 place-items-center rounded-md border-2 border-ink bg-brand-300 text-ink">
+          <Icon className="h-6 w-6" />
+        </div>
       )}
-      <p className="font-semibold text-slate-700">{title}</p>
-      {hint && <p className="max-w-xs text-sm text-slate-500">{hint}</p>}
+      <p className="font-display text-lg font-extrabold text-ink">{title}</p>
+      {hint && <p className="max-w-xs text-sm text-ink/65">{hint}</p>}
     </div>
   )
 }
 
 const toneClasses = {
-  green: 'bg-emerald-50 text-emerald-700',
-  red: 'bg-rose-50 text-rose-700',
-  amber: 'bg-amber-50 text-amber-700',
-  blue: 'bg-sky-50 text-sky-700',
-  slate: 'bg-slate-100 text-slate-600',
-  brand: 'bg-brand-50 text-brand-700',
+  green: 'bg-lime text-ink',
+  red: 'bg-bubble text-ink',
+  amber: 'bg-[#ffe27a] text-ink',
+  blue: 'bg-brand-200 text-ink',
+  slate: 'bg-white text-ink',
+  brand: 'bg-brand-300 text-ink',
+}
+
+const surfaceClasses = {
+  green: 'bg-lime',
+  red: 'bg-bubble',
+  amber: 'bg-[#ffe27a]',
+  blue: 'bg-brand-200',
+  slate: 'bg-white',
+  brand: 'bg-brand-300',
 }
 
 export function Badge({ tone = 'slate', children, className = '' }) {
@@ -77,24 +79,17 @@ function AnimatedValue({ value }) {
   )
 }
 
-export function StatCard({ label, value, sub, tone = 'brand', icon: Icon, symbols, seed = 0 }) {
+export function StatCard({ label, value, sub, tone = 'brand', icon: Icon }) {
   return (
-    <div className="card group transition duration-300 hover:-translate-y-0.5 hover:shadow-md">
-      <CardBackdrop tone={tone} symbols={symbols} seed={seed} count={4} />
-      <div className="relative flex items-start justify-between">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</p>
-        {Icon && (
-          <span
-            className={`grid h-8 w-8 place-items-center rounded-lg transition-transform duration-300 group-hover:scale-110 ${toneClasses[tone]}`}
-          >
-            <Icon className="h-4 w-4" />
-          </span>
-        )}
+    <div className={`card ${surfaceClasses[tone]} transition duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_#231a24]`}>
+      <div className="flex items-start justify-between">
+        <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-ink/70">{label}</p>
+        {Icon && <Icon className="h-5 w-5 text-ink" />}
       </div>
-      <p className="relative mt-2 text-2xl font-extrabold tracking-tight text-slate-900">
+      <p className="mt-2 font-display text-4xl font-extrabold leading-none tracking-tight text-ink">
         <AnimatedValue value={value} />
       </p>
-      {sub && <p className="relative mt-0.5 text-xs text-slate-500">{sub}</p>}
+      {sub && <p className="mt-2 text-xs font-medium text-ink/70">{sub}</p>}
     </div>
   )
 }
@@ -118,16 +113,16 @@ export function Modal({ open, onClose, title, children, footer }) {
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
       <div
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-ink/50"
         style={{ animation: 'page-in 0.2s ease-out both' }}
         onClick={onClose}
       />
-      <div className="safe-bottom animate-slide-up relative z-10 max-h-[88dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-5 shadow-xl sm:rounded-3xl">
+      <div className="safe-bottom animate-slide-up relative z-10 max-h-[88dvh] w-full max-w-lg overflow-y-auto rounded-t-lg border-2 border-ink bg-cream p-5 shadow-pop sm:rounded-lg">
         <div className="mb-4 flex items-center justify-between gap-3">
-          <h2 className="text-lg font-bold text-slate-900">{title}</h2>
+          <h2 className="font-display text-2xl font-extrabold text-ink">{title}</h2>
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 transition hover:rotate-90 hover:bg-slate-100"
+            className="rounded-md border-2 border-ink bg-white p-1.5 text-ink transition hover:bg-lime"
             aria-label="Close"
           >
             <XIcon />
@@ -151,8 +146,7 @@ export function Toast({ message, onDone }) {
   if (!message) return null
   return (
     <div className="safe-bottom pointer-events-none fixed inset-x-0 bottom-36 z-50 flex justify-center px-4">
-      <div className="animate-pop flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white shadow-lg">
-        <Mascot size={32} />
+      <div className="animate-pop flex items-center gap-2 rounded-md border-2 border-ink bg-lime px-4 py-2.5 text-sm font-bold text-ink shadow-pop-sm">
         {message}
       </div>
     </div>
@@ -171,15 +165,15 @@ export function useToast() {
 export function ProgressBar({ value, tone = 'brand' }) {
   const animated = useCountUp(Math.min(100, Math.max(0, value)), 1000)
   const bar = {
-    brand: 'bg-gradient-to-r from-brand-500 to-brand-700',
-    green: 'bg-gradient-to-r from-emerald-400 to-emerald-600',
-    amber: 'bg-gradient-to-r from-amber-400 to-amber-600',
-    red: 'bg-gradient-to-r from-rose-400 to-rose-600',
+    brand: 'bg-brand-500',
+    green: 'bg-lime',
+    amber: 'bg-[#ffe27a]',
+    red: 'bg-bubble',
   }[tone]
 
   return (
-    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200">
-      <div className={`h-full rounded-full ${bar}`} style={{ width: `${animated}%` }} />
+    <div className="h-3.5 w-full overflow-hidden rounded-full border-2 border-ink bg-white">
+      <div className={`h-full border-r-2 border-ink ${bar}`} style={{ width: `${animated}%` }} />
     </div>
   )
 }
@@ -191,16 +185,16 @@ export function ProgressRing({ value, size = 92, stroke = 9, tone = 'brand', chi
   const r = (size - stroke) / 2
   const circ = 2 * Math.PI * r
   const color = {
-    brand: '#4f46e5',
-    green: '#059669',
-    amber: '#d97706',
-    red: '#e11d48',
+    brand: '#8f6bd0',
+    green: '#9fc41a',
+    amber: '#f0b400',
+    red: '#e0559f',
   }[tone]
 
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#e2e8f0" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#efe3d6" strokeWidth={stroke} />
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -208,7 +202,7 @@ export function ProgressRing({ value, size = 92, stroke = 9, tone = 'brand', chi
           fill="none"
           stroke={color}
           strokeWidth={stroke}
-          strokeLinecap="round"
+          strokeLinecap="butt"
           strokeDasharray={circ}
           strokeDashoffset={circ - (animated / 100) * circ}
         />
@@ -239,10 +233,10 @@ export function SegmentedControl({ options, value, onChange }) {
         <button
           key={opt.value}
           onClick={() => onChange(opt.value)}
-          className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 active:scale-95 ${
+          className={`whitespace-nowrap rounded-md border-2 px-4 py-2 text-sm font-bold transition-all duration-150 active:translate-x-px active:translate-y-px ${
             value === opt.value
-              ? 'bg-brand-600 text-white shadow-md shadow-brand-600/25'
-              : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50'
+              ? 'border-ink bg-lime text-ink shadow-pop-sm'
+              : 'border-ink/25 bg-white text-ink/70 hover:border-ink hover:text-ink'
           }`}
         >
           {opt.label}

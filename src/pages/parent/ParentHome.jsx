@@ -10,7 +10,6 @@ import {
 import ChildPicker, { useSelectedChild } from '../../components/ChildPicker'
 import { BellIcon, ChartIcon, ChevronRightIcon, RupeeIcon } from '../../components/Icons'
 import { EmptyState, formatDate, formatRelative, formatRupees } from '../../components/ui'
-import Mascot, { MascotBuddy } from '../../components/Mascot'
 import { AttendanceCard, ScoreCard } from '../../components/DashboardCards'
 
 export default function ParentHome() {
@@ -40,35 +39,17 @@ export default function ParentHome() {
 
   return (
     <div className="space-y-5">
-      <section className="sheen animate-slide-up relative rounded-3xl bg-gradient-to-br from-brand-600 via-brand-600 to-brand-800 p-5 text-white shadow-lg shadow-brand-900/20">
+      <section className="animate-slide-up relative rounded-lg border-2 border-ink bg-brand-300 p-5 text-ink shadow-pop">
         <div className="relative flex items-center gap-3">
           <div className="min-w-0 flex-1">
-            <p className="text-sm text-white/70">Welcome, {firstName}</p>
-            <h1 className="truncate text-2xl font-extrabold tracking-tight">{child.name}</h1>
-            <p className="mt-1 truncate text-sm text-white/75">
+            <p className="text-sm text-ink/70">Welcome, {firstName}</p>
+            <h1 className="truncate text-3xl font-extrabold tracking-tight">{child.name}</h1>
+            <p className="mt-1 truncate text-sm text-ink/70">
               {child.batchName} · Roll {child.rollNo}
             </p>
           </div>
-          <Mascot size={100} lookAt interactive greet className="-mb-4 -mr-1 shrink-0" />
         </div>
       </section>
-
-      <MascotBuddy
-        size={78}
-        className="animate-page-in"
-        lines={[
-          `${child.name.split(' ')[0]} is at ${attendance.percent}% attendance${
-            attendance.percent >= 75 ? '. Comfortably above the requirement.' : ', below the 75% requirement.'
-          }`,
-          outstanding.length > 0
-            ? `${formatRupees(outstanding.reduce((s, f) => s + f.amount, 0))} in fees is still pending.`
-            : 'All fees are clear. Nothing pending.',
-          termPercent !== null
-            ? `Latest test came in at ${termPercent}%.`
-            : 'No test marks recorded yet.',
-          'Tap Progress for the full report card.',
-        ]}
-      />
 
       <ChildPicker children={children} selectedId={selectedId} onSelect={setSelectedId} />
 

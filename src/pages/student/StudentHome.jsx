@@ -13,7 +13,6 @@ import {
 } from '../../data/db'
 import { BellIcon, BookIcon } from '../../components/Icons'
 import { formatRelative } from '../../components/ui'
-import Mascot, { MascotBuddy } from '../../components/Mascot'
 import { AttendanceCard, ScoreCard, QuizCard } from '../../components/DashboardCards'
 import CardBackdrop from '../../components/CardBackdrop'
 
@@ -38,42 +37,18 @@ export default function StudentHome() {
 
   return (
     <div className="space-y-5">
-      <section className="sheen animate-slide-up relative rounded-3xl bg-gradient-to-br from-brand-600 via-brand-600 to-brand-800 p-5 text-white shadow-lg shadow-brand-900/20">
+      <section className="animate-slide-up relative rounded-lg border-2 border-ink bg-brand-300 p-5 text-ink shadow-pop">
         <div className="relative flex items-center gap-3">
           <div className="min-w-0 flex-1">
-            <p className="text-sm text-white/70">{greeting},</p>
-            <h1 className="truncate text-2xl font-extrabold tracking-tight">{firstName}</h1>
-            <p className="mt-1 truncate text-sm text-white/75">
+            <p className="text-sm text-ink/70">{greeting},</p>
+            <h1 className="truncate text-3xl font-extrabold tracking-tight">{firstName}</h1>
+            <p className="mt-1 truncate text-sm text-ink/70">
               {batch?.name} · Roll {student.rollNo}
             </p>
-            <p className="mt-0.5 truncate text-xs text-white/60">{batch?.timing}</p>
+            <p className="mt-0.5 truncate text-xs text-ink/70">{batch?.timing}</p>
           </div>
-          <Mascot
-            size={104}
-            lookAt
-            interactive
-            greet
-            className="-mb-4 -mr-1 shrink-0"
-          />
         </div>
       </section>
-
-      <MascotBuddy
-        size={78}
-        className="animate-page-in"
-        lines={[
-          pendingQuizzes.length > 0
-            ? `You have ${pendingQuizzes.length} quiz${pendingQuizzes.length > 1 ? 'zes' : ''} waiting. Want to knock one out?`
-            : 'All quizzes done. Nicely kept up!',
-          attendance.percent >= 75
-            ? `Attendance is at ${attendance.percent}%. Keep it there.`
-            : `Attendance is ${attendance.percent}%. Try not to miss the next few classes.`,
-          materials.length > 0
-            ? `${materials.length} items in Study Material, newest first.`
-            : 'No study material yet. It will show up here.',
-          'Tap me any time. I do not mind.',
-        ]}
-      />
 
       <div className="stagger space-y-3">
         <AttendanceCard summary={attendance} recent={recentAttendance} />

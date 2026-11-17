@@ -5,7 +5,7 @@ import { getParentRecord, getStudentRecord } from './data/db'
 import Layout from './components/Layout'
 import Login from './pages/Login'
 import IntroScreen from './components/IntroScreen'
-import Mascot from './components/Mascot'
+import { LogoMark } from './components/Logo'
 
 import {
   BellIcon,
@@ -48,7 +48,7 @@ const studentNav = [
 
 const parentNav = [
   { to: '/parent', label: 'Home', icon: HomeIcon },
-  { to: '/parent/attendance', label: 'Attendance', icon: CalendarIcon },
+  { to: '/parent/attendance', label: 'Attend', icon: CalendarIcon },
   { to: '/parent/progress', label: 'Progress', icon: ChartIcon },
   { to: '/parent/fees', label: 'Fees', icon: RupeeIcon },
   { to: '/parent/notifications', label: 'Alerts', icon: BellIcon, badge: 'notifications' },
@@ -65,10 +65,9 @@ const adminNav = [
 
 function Splash() {
   return (
-    <div className="grid min-h-full place-items-center bg-gradient-to-b from-brand-700 to-brand-900">
-      <div className="text-center text-white">
-        <Mascot size={130} mood="think" />
-        <p className="mt-2 text-sm font-semibold tracking-wide">Getting things ready…</p>
+    <div className="grid min-h-full place-items-center bg-brand-300">
+      <div className="animate-pop" role="status" aria-label="Loading">
+        <LogoMark size={96} />
       </div>
     </div>
   )
